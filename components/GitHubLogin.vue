@@ -37,7 +37,10 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const store = useAuthStore();
-const emit = defineEmits(['success']);
+
+defineEmits<{
+  (event: 'success'): void;
+}>();
 
 const loginUrl = computed(() => {
   if (!import.meta.client) {

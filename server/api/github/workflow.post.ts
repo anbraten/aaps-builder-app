@@ -16,16 +16,16 @@ export default defineEventHandler(async (event) => {
     const octokit = new Octokit({ auth: githubToken });
     const [owner, repo] = repoFullName.split('/');
 
-    // await octokit.actions.createWorkflowDispatch({
-    //   owner,
-    //   repo,
-    //   workflow_id: 'build.yml',
-    //   ref: 'main',
-    //   inputs: {
-    //     // TODO: pass credentials
-    //     // google_credentials: cookies.google_token || '',
-    //   },
-    // });
+    await octokit.actions.createWorkflowDispatch({
+      owner,
+      repo,
+      workflow_id: 'build.yml',
+      ref: 'main',
+      inputs: {
+        // TODO: pass credentials
+        // google_credentials: cookies.google_token || '',
+      },
+    });
 
     return { success: true };
   } catch (error) {
