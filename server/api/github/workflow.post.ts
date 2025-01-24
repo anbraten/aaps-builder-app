@@ -3,7 +3,15 @@ import { Octokit } from '@octokit/rest';
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
   const githubToken = cookies.github_token;
-  const { repoFullName } = await readBody(event);
+  const { repoFullName, keyStore } = await readBody<{
+    repoFullName: string;
+    keyStore: {
+      content: string;
+      password: string;
+      keyAlias: string;
+      keyPassword: string;
+    };
+  }>(event);
 
   if (!githubToken) {
     throw createError({
@@ -22,7 +30,14 @@ export default defineEventHandler(async (event) => {
       workflow_id: 'build.yml',
       ref: 'main',
       inputs: {
-        // TODO: pass credentials
+        repo: 'nightscout/AndroidAPS',
+        ref: 'master',
+        keyStoreContent: keyStore.content,
+        keyStorePassword: keyStore.password,
+        keyAlias: keyStore.keyAlias,
+        keyPassword: keyStore.keyPassword,
+
+        // TODO: pass google cloud credentials
         // google_credentials: cookies.google_token || '',
       },
     });
