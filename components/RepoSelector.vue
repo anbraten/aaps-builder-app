@@ -2,7 +2,7 @@
   <div>
     <div class="relative">
       <select
-        :value="authStore.selectedRepo"
+        :value="store.selectedRepo"
         @change="handleRepoChange"
         class="w-full p-2 border rounded-lg appearance-none bg-white pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         :disabled="loading"
@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import type { Repository } from '~/types';
 
-const authStore = useAuthStore();
+const store = useBuilderStore();
 const repos = ref<Repository[]>([]);
 const loading = ref(false);
 
@@ -49,7 +49,7 @@ defineEmits<{
 }>();
 
 const fetchRepos = async () => {
-  if (!authStore.status?.githubToken) return;
+  if (!store.status?.githubToken) return;
 
   loading.value = true;
   try {
@@ -65,11 +65,11 @@ function handleRepoChange(event: Event) {
   const target = event.target as HTMLSelectElement;
   console.log('change', target.value);
   const repo = repos.value.find((r) => r.full_name === target.value);
-  authStore.selectedRepo = repo?.full_name || null;
+  store.selectedRepo = repo?.full_name || '';
 }
 
 watchEffect(() => {
-  if (authStore.status?.githubToken) {
+  if (store.status?.githubToken) {
     fetchRepos();
   }
 });

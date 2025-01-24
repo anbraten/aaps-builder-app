@@ -29,11 +29,7 @@
 </template>
 
 <script setup lang="ts">
-defineEmits<{
-  (event: 'continue'): void;
-}>();
-
-const authStore = useAuthStore();
+const authStore = useBuilderStore();
 const config = useRuntimeConfig();
 
 const loginUrl = computed(() => {

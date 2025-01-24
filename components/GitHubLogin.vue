@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 const config = useRuntimeConfig();
-const store = useAuthStore();
+const store = useBuilderStore();
 
 defineEmits<{
   (event: 'continue'): void;

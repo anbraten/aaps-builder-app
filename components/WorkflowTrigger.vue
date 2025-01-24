@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-const store = useAuthStore();
+const store = useBuilderStore();
 const status = ref<'starting' | 'building' | 'done' | 'error'>();
 
 const statusMessage = computed(() => {

@@ -31,7 +31,7 @@ defineEmits<{
   (event: 'continue'): void;
 }>();
 
-const store = useAuthStore();
+const store = useBuilderStore();
 
 async function selectFile(event: Event) {
   const target = event.target as HTMLInputElement;

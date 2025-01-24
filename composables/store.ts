@@ -17,25 +17,26 @@ type Step = {
   component?: Component;
 };
 
-export const useAuthStore = defineStore('auth', () => {
+export const useBuilderStore = defineStore('aaps_builder', () => {
   const { data: status, refresh: refreshStatus } = useFetch('/api/status');
 
-  const selectedRepo = computed({
-    get() {
-      if (!import.meta.client) {
-        return '';
-      }
+  // const selectedRepo = computed({
+  //   get() {
+  //     if (!import.meta.client) {
+  //       return '';
+  //     }
 
-      return localStorage.getItem(`${prefix}selected_repo`);
-    },
-    set(value: string | null) {
-      if (value === null) {
-        localStorage.removeItem(`${prefix}selected_repo`);
-      } else {
-        localStorage.setItem(`${prefix}selected_repo`, value);
-      }
-    },
-  });
+  //     return localStorage.getItem(`${prefix}selected_repo`);
+  //   },
+  //   set(value: string | null) {
+  //     if (value === null) {
+  //       localStorage.removeItem(`${prefix}selected_repo`);
+  //     } else {
+  //       localStorage.setItem(`${prefix}selected_repo`, value);
+  //     }
+  //   },
+  // });
+  const selectedRepo = useLocalStorage(`${prefix}selected_repo`, '');
 
   const keyStore = useLocalStorage(`${prefix}key_store`, {
     content: '',
