@@ -23,13 +23,6 @@
       </div>
     </div>
 
-    <button
-      v-if="authStore.selectedRepo && !loading"
-      @click="$emit('selected')"
-      class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mt-4"
-    >
-      Continue →
-    </button>
     <div v-if="loading" class="mt-2 text-sm text-gray-600 flex items-center justify-center">
       <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -52,7 +45,7 @@ const repos = ref<Repository[]>([]);
 const loading = ref(false);
 
 defineEmits<{
-  (event: 'selected'): void;
+  (event: 'continue'): void;
 }>();
 
 const fetchRepos = async () => {

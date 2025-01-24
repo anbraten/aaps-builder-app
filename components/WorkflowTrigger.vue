@@ -2,14 +2,20 @@
   <div>
     <p class="text-gray-600 text-sm mb-4">
       Using
-      <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline">{{
+      <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline font-bold">{{
         store.selectedRepo
       }}</a>
       to build
-      <a :href="`https://github.com/nightscout/AndroidAPS`" target="_blank" class="underline">AAPS</a> version
-      {{ appVersion?.version }}.
+      <a :href="`https://github.com/nightscout/AndroidAPS`" target="_blank" class="underline font-bold"
+        >nightscout/AndroidAPS</a
+      >
+      version <span class="font-bold">{{ appVersion?.version }}</span> and save it to
+      <span class="font-bold">Google Drive</span> as
+      <span class="font-bold">androidaps-{{ appVersion?.version }}.apk</span>.
     </p>
+
     <button
+      v-if="completedSteps && status !== 'done'"
       @click="triggerWorkflow"
       :disabled="status === 'starting' || status === 'building'"
       class="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
@@ -30,6 +36,9 @@
       </svg>
       <span>{{ status === 'starting' || status === 'building' ? 'Building the app ...' : 'Start Build' }}</span>
     </button>
+    <p v-if="!completedSteps" class="mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700">
+      You need to complete all steps before building the app.
+    </p>
     <div
       v-if="statusMessage"
       class="mt-4 p-3 rounded-lg text-sm"
@@ -57,40 +66,43 @@ const statusMessage = computed(() => {
 
 const { data: appVersion } = await useFetch('/api/github/app-version');
 
-const checkBuildInterval = ref<number>();
-async function startCheckingBuildStatus() {
-  checkBuildInterval.value = window.setInterval(async () => {
-    const response = await $fetch<{
-      status: 'building' | 'done' | 'error';
-    }>('/api/github/workflow', {
-      method: 'GET',
-      query: {
-        repoFullName: store.selectedRepo,
-        // TODO: pass workflow id or sth
-      },
-    });
+const completedSteps = computed(() => store.steps.filter((step) => step.isDone).length === store.steps.length - 1);
 
-    if (response.status === 'done' || response.status === 'error') {
-      status.value = response.status;
-      clearInterval(checkBuildInterval.value);
-    }
-  }, 1000 * 10);
-}
+// TODO: check build status and notify user
+// const checkBuildInterval = ref<number>();
+// async function startCheckingBuildStatus() {
+//   checkBuildInterval.value = window.setInterval(async () => {
+//     const response = await $fetch<{
+//       status: 'building' | 'done' | 'error';
+//     }>('/api/github/workflow', {
+//       method: 'GET',
+//       query: {
+//         repoFullName: store.selectedRepo,
+//         // TODO: pass workflow id or sth
+//       },
+//     });
 
-function stopCheckingBuildStatus() {
-  if (checkBuildInterval.value !== undefined) {
-    clearInterval(checkBuildInterval.value);
-  }
-}
+//     if (response.status === 'done' || response.status === 'error') {
+//       status.value = response.status;
+//       clearInterval(checkBuildInterval.value);
+//     }
+//   }, 1000 * 10);
+// }
 
-onBeforeUnmount(() => {
-  stopCheckingBuildStatus();
-});
+// function stopCheckingBuildStatus() {
+//   if (checkBuildInterval.value !== undefined) {
+//     clearInterval(checkBuildInterval.value);
+//   }
+// }
+
+// onBeforeUnmount(() => {
+//   stopCheckingBuildStatus();
+// });
 
 async function triggerWorkflow() {
   if (!store.status?.githubToken || !store.status?.googleToken || !store.selectedRepo) return;
 
-  stopCheckingBuildStatus();
+  // stopCheckingBuildStatus();
 
   status.value = 'starting';
 
@@ -98,7 +110,10 @@ async function triggerWorkflow() {
     await $fetch('/api/github/workflow', {
       method: 'POST',
       body: {
+        // github and google tokens are provided as cookies
         repoFullName: store.selectedRepo,
+        // appVersion: appVersion?.version, // TODO: pass app version
+        keyStore: store.keyStore,
       },
     });
 
