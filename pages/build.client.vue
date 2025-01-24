@@ -70,6 +70,9 @@
 <script setup lang="ts">
 const store = useBuilderStore();
 
+// wait for the store to be initialized
+await store.refreshStatus();
+
 const currentStepId = ref(store.steps.findIndex((step) => step.isDone === false));
 
 const currentStep = computed(() => store.steps[currentStepId.value]);
