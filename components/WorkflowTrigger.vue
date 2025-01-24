@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
 });
 
 async function triggerWorkflow() {
-  if (!store.githubToken || !store.googleToken || !store.selectedRepo) return;
+  if (!store.status?.githubToken || !store.status?.googleToken || !store.selectedRepo) return;
 
   stopCheckingBuildStatus();
 

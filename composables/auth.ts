@@ -1,12 +1,9 @@
-import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import type { Repository } from '~/types';
 
 const prefix = 'aaps_builder.';
 
 export const useAuthStore = defineStore('auth', () => {
-  const githubToken = useCookie<string | null>(`github_token`);
-  const googleToken = useCookie<string | null>(`google_token`);
+  const { data: status, refresh: refreshStatus } = useFetch('/api/status');
 
   const selectedRepo = computed({
     get() {
@@ -22,8 +19,8 @@ export const useAuthStore = defineStore('auth', () => {
   });
 
   return {
-    githubToken,
-    googleToken,
+    status,
+    refreshStatus,
     selectedRepo,
   };
 });

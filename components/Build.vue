@@ -62,7 +62,6 @@
 <script setup lang="ts">
 import { useStorage } from '@vueuse/core';
 
-const store = useAuthStore();
 const currentStep = useStorage(`aaps_builder.current_step`, 0);
 
 const steps = ref([

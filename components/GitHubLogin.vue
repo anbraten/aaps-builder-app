@@ -1,7 +1,7 @@
 <template>
   <div>
     <a
-      v-if="!store.githubToken"
+      v-if="!store.status?.githubToken"
       :href="loginUrl"
       class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
     >

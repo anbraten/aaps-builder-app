@@ -56,7 +56,7 @@ defineEmits<{
 }>();
 
 const fetchRepos = async () => {
-  if (!authStore.githubToken) return;
+  if (!authStore.status?.githubToken) return;
 
   loading.value = true;
   try {
@@ -76,7 +76,7 @@ function handleRepoChange(event: Event) {
 }
 
 watchEffect(() => {
-  if (authStore.githubToken) {
+  if (authStore.status?.githubToken) {
     fetchRepos();
   }
 });
