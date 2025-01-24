@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         client_secret: config.googleClientSecret,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: `${config.public.baseUrl ?? 'http://localhost:3000'}/api/google/callback`,
+        redirect_uri: `${config.public.appUrl}/api/google/callback`,
       }),
       ignoreResponseError: true,
     });

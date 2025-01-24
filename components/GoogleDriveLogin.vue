@@ -41,7 +41,7 @@ const emit = defineEmits(['success']);
 const config = useRuntimeConfig();
 
 const loginUrl = computed(() => {
-  const redirectUri = 'http://localhost:3000/api/google/callback';
+  const redirectUri = `${config.public.appUrl}/api/google/callback`;
   const scope = 'https://www.googleapis.com/auth/drive.file';
 
   return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${config.public.googleClientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
