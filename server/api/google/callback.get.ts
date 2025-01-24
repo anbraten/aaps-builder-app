@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
       maxAge: 60 * 60 * 24, // 24 hours
     });
 
-    sendRedirect(event, '/');
+    sendRedirect(event, '/build');
   } catch (error) {
     console.error('Google auth error:', error);
     throw createError({
