@@ -1,5 +1,14 @@
 <template>
   <div>
+    <p class="text-gray-600 text-sm mb-4">
+      Using
+      <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline">{{
+        store.selectedRepo
+      }}</a>
+      to build
+      <a :href="`https://github.com/nightscout/AndroidAPS`" target="_blank" class="underline">AAPS</a> version
+      {{ appVersion?.version }}.
+    </p>
     <button
       @click="triggerWorkflow"
       :disabled="status === 'starting' || status === 'building'"
@@ -45,6 +54,8 @@ const statusMessage = computed(() => {
 
   return null;
 });
+
+const { data: appVersion } = await useFetch('/api/github/app-version');
 
 const checkBuildInterval = ref<number>();
 async function startCheckingBuildStatus() {
