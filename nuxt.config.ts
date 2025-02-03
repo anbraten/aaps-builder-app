@@ -1,10 +1,14 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt',
-  ],
+  app: {
+    head: {
+      title: 'AAPS Builder',
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    },
+  },
+
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
 
   runtimeConfig: {
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -12,9 +16,9 @@ export default defineNuxtConfig({
     public: {
       appUrl: process.env.APP_URL || 'http://localhost:3000',
       githubClientId: process.env.GITHUB_CLIENT_ID,
-      googleClientId: process.env.GOOGLE_CLIENT_ID
-    }
+      googleClientId: process.env.GOOGLE_CLIENT_ID,
+    },
   },
 
-  compatibilityDate: '2025-01-19'
-})
+  compatibilityDate: '2025-01-19',
+});
