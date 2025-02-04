@@ -15,7 +15,7 @@
         >nightscout/AndroidAPS</a
       >
       version <span class="font-bold">{{ appVersion?.version }}</span
-      >. The app will be saved to <span class="font-bold">Google Drive</span> as
+      >. The app will be saved to <span class="font-bold">{{ cloudStorage }}</span> as
       <span class="font-bold">AndroidAPS-{{ appVersion?.version }}.apk</span>.
     </p>
 
@@ -60,19 +60,21 @@
 const store = useBuilderStore();
 const status = ref<'starting' | 'building' | 'done' | 'error'>();
 
-const statusMessage = computed(() => {
-  if (status.value === 'done') {
-    let storage = '';
-    if (store.selectedCloudStorage === 'google-drive') {
-      storage = 'Please check your Google Drive.';
-    } else if (store.selectedCloudStorage === 'dropbox') {
-      storage = 'Please check your Dropbox.';
-    } else if (store.selectedCloudStorage === 'github-artifact') {
-      storage = 'Please check the GitHub artifact of this workflow.';
-    }
-    return `Your app should be ready soon! ${storage}`;
+const cloudStorage = computed(() => {
+  switch (store.selectedCloudStorage) {
+    case 'google-drive':
+      return 'Google Drive';
+    case 'dropbox':
+      return 'Dropbox';
+    case 'github-artifact':
+      return 'GitHub Artifact';
+    default:
+      return null;
   }
+});
 
+const statusMessage = computed(() => {
+  if (status.value === 'done') return `Your app should be ready soon! ${cloudStorage.value}`;
   if (status.value === 'error') return 'Error building the app. Please try again.';
 
   return null;
