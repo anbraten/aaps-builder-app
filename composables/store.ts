@@ -1,8 +1,8 @@
 import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import type { Component } from 'vue';
+import CloudStorage from '~/components/CloudStorage.vue';
 import GitHubLogin from '~/components/GitHubLogin.vue';
-import GoogleDriveLogin from '~/components/GoogleDriveLogin.vue';
 import KeyStore from '~/components/KeyStore.vue';
 import RepoSelector from '~/components/RepoSelector.vue';
 import WorkflowTrigger from '~/components/WorkflowTrigger.vue';
@@ -27,6 +27,11 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
     keyAlias: '',
     keyPassword: '',
   });
+
+  const selectedCloudStorage = useLocalStorage<'google-drive' | 'dropbox' | 'github-artifact' | ''>(
+    `${prefix}selected_cloud_storage`,
+    '',
+  );
 
   const keyStoreConfigured = computed(
     () =>
@@ -58,8 +63,18 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
     {
       name: 'Cloud Storage',
       title: 'Setup a Cloud Storage',
-      isDone: computed(() => status.value?.googleToken === true),
-      component: GoogleDriveLogin,
+      isDone: computed(() => {
+        if (selectedCloudStorage.value === 'google-drive') {
+          return status.value?.googleToken === true;
+        }
+
+        if (selectedCloudStorage.value === 'dropbox') {
+          return status.value?.dropboxToken === true;
+        }
+
+        return selectedCloudStorage.value !== '';
+      }),
+      component: CloudStorage,
     },
     {
       name: 'Build',
@@ -74,6 +89,7 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
     status,
     refreshStatus,
     selectedRepo,
+    selectedCloudStorage,
     keyStore,
   };
 });

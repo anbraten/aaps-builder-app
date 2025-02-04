@@ -103,8 +103,6 @@ const completedSteps = computed(() => store.steps.filter((step) => step.isDone).
 // });
 
 async function triggerWorkflow() {
-  if (!store.status?.githubToken || !store.status?.googleToken || !store.selectedRepo) return;
-
   // stopCheckingBuildStatus();
 
   status.value = 'starting';
@@ -113,10 +111,11 @@ async function triggerWorkflow() {
     await $fetch('/api/github/workflow', {
       method: 'POST',
       body: {
-        // github and google tokens are provided as cookies
+        // github and cloud storage tokens are provided as cookies
         repoFullName: store.selectedRepo,
         // appVersion: appVersion?.version, // TODO: pass app version
         keyStore: store.keyStore,
+        cloudStorage: store.selectedCloudStorage,
       },
     });
 

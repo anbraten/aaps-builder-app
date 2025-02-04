@@ -3,10 +3,6 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
 
   try {
-    console.log({
-      redirect_uri: `${config.public.baseUrl}/api/google/callback`,
-    });
-
     const tokenResponse = await $fetch<
       | {
           error: string;
@@ -33,8 +29,6 @@ export default defineEventHandler(async (event) => {
       console.log('Google auth error:', tokenResponse);
       throw new Error(tokenResponse.error);
     }
-
-    console.log('tt', tokenResponse);
 
     setCookie(event, 'google_token', tokenResponse.access_token, {
       httpOnly: true,
