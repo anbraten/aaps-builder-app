@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <p class="text-gray-600">
       To build the AAPS app you have to fork (create your own copy) of the
-      <a href="https://github.com/anbraten/aaps-builder" target="_blank" class="underline">anbraten/aaps-builder</a>
+      <a :href="`https://github.com/${builderRepo}`" target="_blank" class="underline">{{ builderRepo }}</a>
       GitHub repository. This fork will be used to build the app with your own configuration.
     </p>
 
@@ -22,37 +22,40 @@
       Loading repositories...
     </div>
 
-    <div v-if="!forkedRepoMatch" class="text-gray-600 mt-4">
-      Have you forked the apps builder repository already? If not you can fork it
-      <a :href="`https://github.com/anbraten/aaps-builder/fork`" class="underline" target="_blank">now</a>. After that
-      come back to this page and select the repository to continue.
+    <div v-if="!forkedRepoMatch && checkedForForks" class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4">
+      Could not find a fork automatically. Have you forked the {{ builderRepo }} repository already? If not click
+      <a :href="`https://github.com/${builderRepo}/fork`" class="underline" target="_blank">here</a> to fork it now.
+      After that check for existing forks again.
     </div>
 
-    <div class="relative mt-4">
-      <select
-        :value="store.selectedRepo"
-        @change="handleRepoChange"
-        class="w-full p-2 border rounded-lg appearance-none bg-white pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        :disabled="loading"
-      >
-        <option value="">Select a repository</option>
-        <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
-          {{ repo.full_name }} {{ repo.full_name.endsWith('/aaps-builder') ? '(This one seems to be it)' : '' }}
-        </option>
-        <option v-if="repos.length === 0 && store.selectedRepo" :value="store.selectedRepo">
+    <template v-if="checkedForForks">
+      <p class="text-gray-600 mt-4">Select the forked repository:</p>
+      <div class="relative">
+        <select
+          :value="store.selectedRepo"
+          @change="handleRepoChange"
+          class="w-full p-2 border rounded-lg appearance-none bg-white pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          :disabled="loading"
+        >
+          <option value="">Select a repository</option>
+          <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
+            {{ repo.full_name }} {{ repo.full_name.endsWith(`/${builderRepoName}`) ? '(This one seems to be it)' : '' }}
+          </option>
+          <!-- <option v-if="repos.length === 0 && store.selectedRepo" :value="store.selectedRepo">
           {{ store.selectedRepo }} (This one seems to be it)
-        </option>
-      </select>
-      <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-        <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            fill-rule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        </option> -->
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -62,12 +65,15 @@ import type { Repository } from '~/types';
 const store = useBuilderStore();
 const repos = ref<Repository[]>([]);
 const loading = ref(false);
+const checkedForForks = ref(false);
 
 defineEmits<{
   (event: 'continue'): void;
 }>();
 
-const forkedRepoMatch = computed(() => store.selectedRepo.endsWith('/aaps-builder'));
+const builderRepo = 'anbraten/aaps-builder';
+const builderRepoName = builderRepo.split('/')[1];
+const forkedRepoMatch = computed(() => store.selectedRepo.endsWith(`/${builderRepoName}`));
 
 async function fetchRepos() {
   if (!store.status?.githubToken) return;
@@ -85,7 +91,8 @@ async function fetchRepos() {
 async function checkForExistingFork() {
   await fetchRepos();
 
-  store.selectedRepo = repos.value.find((r) => r.full_name.endsWith('/aaps-builder'))?.full_name || '';
+  store.selectedRepo = repos.value.find((r) => r.full_name.endsWith(`/${builderRepoName}`))?.full_name || '';
+  checkedForForks.value = true;
 }
 
 function handleRepoChange(event: Event) {
