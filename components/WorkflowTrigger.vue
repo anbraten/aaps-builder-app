@@ -74,7 +74,8 @@ const cloudStorage = computed(() => {
 });
 
 const statusMessage = computed(() => {
-  if (status.value === 'done') return `Your app should be ready soon! ${cloudStorage.value}`;
+  if (status.value === 'done')
+    return `Your app should be ready soon! It should be in your ${cloudStorage.value} in a few minutes.`;
   if (status.value === 'error') return 'Error building the app. Please try again.';
 
   return null;
