@@ -39,6 +39,9 @@
         <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
           {{ repo.full_name }} {{ repo.full_name.endsWith('/aaps-builder') ? '(This one seems to be it)' : '' }}
         </option>
+        <option v-if="repos.length === 0 && store.selectedRepo" :value="store.selectedRepo">
+          {{ store.selectedRepo }} (This one seems to be it)
+        </option>
       </select>
       <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
         <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -93,7 +96,7 @@ function handleRepoChange(event: Event) {
 }
 
 onMounted(() => {
-  if (store.status?.githubToken) {
+  if (store.status?.githubToken && !store.selectedRepo) {
     checkForExistingFork();
   }
 });
