@@ -1,8 +1,8 @@
 <template>
   <div>
     <p class="p-3 rounded-lg bg-orange-100 text-orange-700 mb-4">
-      The Google Drive integration is still in development and therefore not verified. To be able to use it please sent
-      your Google Mail address as PM to Anton. This is expected!
+      The Google Drive integration is still in development and therefore not verified. This is expected! Please sent
+      your Google email address to Anton to be able to use it.
     </p>
 
     <a
