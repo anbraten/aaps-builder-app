@@ -22,10 +22,22 @@
       Loading repositories...
     </div>
 
-    <div v-if="!forkedRepoMatch && checkedForForks" class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4">
-      Could not find a fork automatically. Have you forked the {{ builderRepo }} repository already? If not click
-      <a :href="`https://github.com/${builderRepo}/fork`" class="underline" target="_blank">here</a> to fork it now.
-      After that check for existing forks again.
+    <div
+      v-if="!hasForkedRepo && checkedForForks"
+      class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4 flex flex-col"
+    >
+      <p>Could not find a fork automatically.</p>
+      <p>Have you forked the {{ builderRepo }} repository already?</p>
+
+      <p>If not fork it now:</p>
+      <a
+        :href="`https://github.com/${builderRepo}/fork`"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg mt-4 mx-auto"
+        target="_blank"
+        >Fork now</a
+      >
+
+      <p>Or select it from the following list:</p>
     </div>
 
     <template v-if="checkedForForks">
@@ -39,7 +51,8 @@
         >
           <option value="">Select a repository</option>
           <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
-            {{ repo.full_name }} {{ repo.full_name.endsWith(`/${builderRepoName}`) ? '(This one seems to be it)' : '' }}
+            {{ repo.full_name }}
+            {{ repo.full_name.endsWith(`/${builderRepoName}`) ? '(This one seems to be it)' : '' }}
           </option>
           <!-- <option v-if="repos.length === 0 && store.selectedRepo" :value="store.selectedRepo">
           {{ store.selectedRepo }} (This one seems to be it)
@@ -73,7 +86,7 @@ defineEmits<{
 
 const builderRepo = 'anbraten/aaps-builder';
 const builderRepoName = builderRepo.split('/')[1];
-const forkedRepoMatch = computed(() => store.selectedRepo.endsWith(`/${builderRepoName}`));
+const hasForkedRepo = computed(() => repos.value.some((r) => r.full_name.endsWith(`/${builderRepoName}`)));
 
 async function fetchRepos() {
   if (!store.status?.githubToken) return;
