@@ -46,8 +46,7 @@
       <div class="bg-white rounded-lg shadow-md p-6">
         <TransitionGroup name="fade" mode="out-in">
           <div v-if="currentStep" class="space-y-4">
-            <h2 class="text-lg font-semibold">{{ currentStep.title }}</h2>
-            <p class="text-gray-600 text-sm mb-4">{{ currentStep.description }}</p>
+            <h2 class="text-xl font-semibold">{{ currentStep.title }}</h2>
             <component :is="currentStep.component" @continue="nextStep" />
 
             <div class="flex w-full justify-between gap-2">

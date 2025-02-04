@@ -1,6 +1,34 @@
 <template>
-  <div>
-    <div class="relative">
+  <div class="flex flex-col">
+    <p class="text-gray-600">
+      To build the AAPS app you have to fork (create your own copy) of the
+      <a href="https://github.com/anbraten/aaps-builder" target="_blank" class="underline">anbraten/aaps-builder</a>
+      GitHub repository. This fork will be used to build the app with your own configuration.
+    </p>
+
+    <button @click="checkForExistingFork" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg mx-auto">
+      Check for existing fork
+    </button>
+
+    <div v-if="loading" class="mt-2 text-gray-600 flex items-center justify-center">
+      <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      Loading repositories...
+    </div>
+
+    <div v-if="!forkedRepoMatch" class="text-gray-600 mt-4">
+      Have you forked the apps builder repository already? If not you can fork it
+      <a :href="`https://github.com/anbraten/aaps-builder/fork`" class="underline" target="_blank">now</a>. After that
+      come back to this page and select the repository to continue.
+    </div>
+
+    <div class="relative mt-4">
       <select
         :value="store.selectedRepo"
         @change="handleRepoChange"
@@ -9,7 +37,7 @@
       >
         <option value="">Select a repository</option>
         <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
-          {{ repo.full_name }}
+          {{ repo.full_name }} {{ repo.full_name.endsWith('/aaps-builder') ? '(This one seems to be it)' : '' }}
         </option>
       </select>
       <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
@@ -21,18 +49,6 @@
           />
         </svg>
       </div>
-    </div>
-
-    <div v-if="loading" class="mt-2 text-sm text-gray-600 flex items-center justify-center">
-      <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        ></path>
-      </svg>
-      Loading repositories...
     </div>
   </div>
 </template>
@@ -48,7 +64,9 @@ defineEmits<{
   (event: 'continue'): void;
 }>();
 
-const fetchRepos = async () => {
+const forkedRepoMatch = computed(() => store.selectedRepo.endsWith('/aaps-builder'));
+
+async function fetchRepos() {
   if (!store.status?.githubToken) return;
 
   loading.value = true;
@@ -59,7 +77,13 @@ const fetchRepos = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
+
+async function checkForExistingFork() {
+  await fetchRepos();
+
+  store.selectedRepo = repos.value.find((r) => r.full_name.endsWith('/aaps-builder'))?.full_name || '';
+}
 
 function handleRepoChange(event: Event) {
   const target = event.target as HTMLSelectElement;
@@ -68,9 +92,9 @@ function handleRepoChange(event: Event) {
   store.selectedRepo = repo?.full_name || '';
 }
 
-watchEffect(() => {
+onMounted(() => {
   if (store.status?.githubToken) {
-    fetchRepos();
+    checkForExistingFork();
   }
 });
 </script>

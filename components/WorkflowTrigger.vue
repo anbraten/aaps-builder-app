@@ -1,6 +1,11 @@
 <template>
   <div>
-    <p class="text-gray-600 text-sm mb-4">
+    <p v-if="!completedSteps" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700 mb-4">
+      You need to complete all steps before building the app.
+    </p>
+    <p v-else class="text-gray-600 mb-4">Everything is ready to go. Let's build your app!</p>
+
+    <p class="text-gray-600 mb-4">
       Using
       <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline font-bold">{{
         store.selectedRepo
@@ -9,9 +14,9 @@
       <a :href="`https://github.com/nightscout/AndroidAPS`" target="_blank" class="underline font-bold"
         >nightscout/AndroidAPS</a
       >
-      version <span class="font-bold">{{ appVersion?.version }}</span> and save it to
-      <span class="font-bold">Google Drive</span> as
-      <span class="font-bold">androidaps-{{ appVersion?.version }}.apk</span>.
+      version <span class="font-bold">{{ appVersion?.version }}</span
+      >. The app will be saved to <span class="font-bold">Google Drive</span> as
+      <span class="font-bold">AndroidAPS-{{ appVersion?.version }}.apk</span>.
     </p>
 
     <button
@@ -36,12 +41,10 @@
       </svg>
       <span>{{ status === 'starting' || status === 'building' ? 'Building the app ...' : 'Start Build' }}</span>
     </button>
-    <p v-if="!completedSteps" class="mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700">
-      You need to complete all steps before building the app.
-    </p>
+
     <div
       v-if="statusMessage"
-      class="mt-4 p-3 rounded-lg text-sm"
+      class="mt-4 p-3 rounded-lg"
       :class="{
         'bg-green-100 text-green-700': status === 'done',
         'bg-red-100 text-red-700': status === 'error',

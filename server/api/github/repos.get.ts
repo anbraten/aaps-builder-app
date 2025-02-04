@@ -15,32 +15,24 @@ export default defineEventHandler(async (event) => {
 
   try {
     const { data } = await octokit.repos.listForAuthenticatedUser({
-      visibility: 'all',
       sort: 'updated',
-      per_page: 10,
+      per_page: 100,
+      type: 'owner',
     });
 
     const repos = await Promise.all(
       data.map(async (repo) => {
-        const { data: contents } = await octokit.repos
-          .getContent({
-            owner: repo.owner.login,
-            repo: repo.name,
-            path: '.github/workflows',
-          })
-          .catch(() => ({ data: null }));
-
         return {
           id: repo.id,
           name: repo.name,
           full_name: repo.full_name,
-          has_workflow: Boolean(contents),
+          fork: repo.fork,
           // has_workflow: true,
         };
       }),
     );
 
-    return repos.filter((repo) => repo.has_workflow);
+    return repos;
   } catch (error) {
     console.error('Error fetching repos:', error);
     throw createError({

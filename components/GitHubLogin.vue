@@ -1,5 +1,7 @@
 <template>
   <div>
+    <p class="text-gray-600 mb-4">First, let's connect your GitHub account to access your repositories.</p>
+
     <a
       v-if="!store.status?.githubToken"
       :href="loginUrl"

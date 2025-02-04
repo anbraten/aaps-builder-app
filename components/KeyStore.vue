@@ -1,5 +1,9 @@
 <template>
   <div class="flex flex-col gap-2">
+    <p class="text-gray-600 mb-4">
+      A Key Store is required to sign your app. You probably have one already if you have used AndroidAPS before.
+    </p>
+
     <input type="file" accept=".jks" @change="selectFile" />
 
     <template v-if="store.keyStore.content">

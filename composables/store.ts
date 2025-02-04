@@ -12,7 +12,6 @@ const prefix = 'aaps_builder.';
 type Step = {
   name: string;
   title?: string;
-  description?: string;
   isDone: Ref<boolean>;
   component?: Component;
 };
@@ -41,36 +40,30 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
     {
       name: 'GitHub',
       title: 'Login to GitHub',
-      description: "First, let's connect your GitHub account to access your repositories.",
       isDone: computed(() => status.value?.githubToken === true),
       component: GitHubLogin,
     },
     {
       name: 'Repository',
-      title: 'Select repository',
-      description: 'Choose the Android repository you want to build.',
-      isDone: computed(() => selectedRepo.value !== null),
+      title: 'Select a repository',
+      isDone: computed(() => selectedRepo.value !== '' && selectedRepo.value !== null),
       component: RepoSelector,
     },
     {
       name: 'KeyStore',
-      title: 'Setup KeyStore',
-      description:
-        'A Key Store is required to sign your app. You probably have one already if you have used AndroidAPS before.',
+      title: 'Setup a KeyStore',
       isDone: keyStoreConfigured,
       component: KeyStore,
     },
     {
       name: 'Cloud Storage',
-      title: 'Setup Cloud Storage',
-      description: 'Connect your Google Drive to store the build artifacts.',
+      title: 'Setup a Cloud Storage',
       isDone: computed(() => status.value?.googleToken === true),
       component: GoogleDriveLogin,
     },
     {
       name: 'Build',
       title: 'Build',
-      description: "Everything is ready to go. Let's build your app!",
       isDone: computed(() => false),
       component: WorkflowTrigger,
     },

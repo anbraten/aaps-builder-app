@@ -1,5 +1,9 @@
 <template>
   <div>
+    <p class="text-gray-600 mb-4">
+      Connect your Google Drive after building the app it will be automatically uploaded.
+    </p>
+
     <a
       v-if="!authStore.status?.googleToken"
       :href="loginUrl"
