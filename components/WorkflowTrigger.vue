@@ -61,7 +61,18 @@ const store = useBuilderStore();
 const status = ref<'starting' | 'building' | 'done' | 'error'>();
 
 const statusMessage = computed(() => {
-  if (status.value === 'done') return 'Your app should be ready soon! Please download it from Google Drive.';
+  if (status.value === 'done') {
+    let storage = '';
+    if (store.selectedCloudStorage === 'google-drive') {
+      storage = 'Please check your Google Drive.';
+    } else if (store.selectedCloudStorage === 'dropbox') {
+      storage = 'Please check your Dropbox.';
+    } else if (store.selectedCloudStorage === 'github-artifact') {
+      storage = 'Please check the GitHub artifact of this workflow.';
+    }
+    return `Your app should be ready soon! ${storage}`;
+  }
+
   if (status.value === 'error') return 'Error building the app. Please try again.';
 
   return null;
