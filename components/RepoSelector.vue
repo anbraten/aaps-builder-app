@@ -23,16 +23,17 @@
     </div>
 
     <div
-      v-if="!hasForkedRepo && checkedForForks"
+      v-if="hasForkedRepo && checkedForForks"
       class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4 flex flex-col"
     >
-      <p>Could not find a fork automatically.</p>
-      <p>Have you forked the {{ builderRepo }} repository already?</p>
+      <p>
+        Could not find a fork automatically. Have you forked the {{ builderRepo }} repository already? If not fork it
+        now:
+      </p>
 
-      <p>If not fork it now:</p>
       <a
         :href="`https://github.com/${builderRepo}/fork`"
-        class="px-4 py-2 bg-green-600 text-white rounded-lg mt-4 mx-auto"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg my-2 mx-auto"
         target="_blank"
         >Fork now</a
       >
