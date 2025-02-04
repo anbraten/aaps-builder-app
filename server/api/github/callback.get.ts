@@ -1,9 +1,11 @@
+import type { OAuthTokenResponse } from '~/server/types';
+
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event);
   const config = useRuntimeConfig();
 
   try {
-    const tokenResponse = await $fetch('https://github.com/login/oauth/access_token', {
+    const tokenResponse = await $fetch<OAuthTokenResponse>('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -21,7 +23,7 @@ export default defineEventHandler(async (event) => {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: tokenResponse.expires_in,
     });
 
     sendRedirect(event, '/build');

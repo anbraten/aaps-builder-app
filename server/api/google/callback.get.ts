@@ -1,19 +1,11 @@
+import type { OAuthTokenResponse } from '~/server/types';
+
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event);
   const config = useRuntimeConfig();
 
   try {
-    const tokenResponse = await $fetch<
-      | {
-          error: string;
-          error_description: string;
-        }
-      | {
-          access_token: string;
-          refresh_token: string;
-          expires_in: number;
-        }
-    >('https://oauth2.googleapis.com/token', {
+    const tokenResponse = await $fetch<OAuthTokenResponse>('https://oauth2.googleapis.com/token', {
       method: 'POST',
       body: JSON.stringify({
         client_id: config.public.googleClientId,
@@ -34,7 +26,7 @@ export default defineEventHandler(async (event) => {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: tokenResponse.expires_in,
     });
 
     sendRedirect(event, '/build');

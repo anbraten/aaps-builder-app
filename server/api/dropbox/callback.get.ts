@@ -1,3 +1,5 @@
+import type { OAuthTokenResponse } from '~/server/types';
+
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event);
   const config = useRuntimeConfig();
@@ -11,17 +13,7 @@ export default defineEventHandler(async (event) => {
       redirect_uri: `${config.public.appUrl}/api/dropbox/callback`,
     });
 
-    const tokenResponse = await $fetch<
-      | {
-          error: string;
-          error_description: string;
-        }
-      | {
-          access_token: string;
-          refresh_token: string;
-          expires_in: number;
-        }
-    >('https://api.dropbox.com/oauth2/token', {
+    const tokenResponse = await $fetch<OAuthTokenResponse>('https://api.dropbox.com/oauth2/token', {
       method: 'POST',
       body: params,
       ignoreResponseError: true,
@@ -36,7 +28,7 @@ export default defineEventHandler(async (event) => {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 1, // 1 hour
+      maxAge: tokenResponse.expires_in,
     });
 
     sendRedirect(event, '/build');
