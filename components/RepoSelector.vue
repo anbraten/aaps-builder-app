@@ -23,7 +23,7 @@
     </div>
 
     <div
-      v-if="hasForkedRepo && checkedForForks"
+      v-if="!hasForkedRepo && checkedForForks"
       class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4 flex flex-col"
     >
       <p>
