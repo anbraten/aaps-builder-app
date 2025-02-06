@@ -1,14 +1,23 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  compatibilityDate: '2025-01-19',
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
 
   app: {
     head: {
       title: 'AAPS Builder',
       link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      script: [
+        {
+          src: 'https://boomerang.ju60.de/main.js',
+          defer: true,
+          async: true,
+          'data-website-id': '80133bac-4a15-4e39-96cf-fa3edfff3c3c',
+          'data-domains': 'aaps-builder.vercel.app',
+        },
+      ],
     },
   },
-
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
 
   runtimeConfig: {
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -21,6 +30,4 @@ export default defineNuxtConfig({
       dropboxClientId: process.env.DROPBOX_CLIENT_ID,
     },
   },
-
-  compatibilityDate: '2025-01-19',
 });

@@ -147,6 +147,11 @@ async function triggerWorkflow() {
       },
     });
 
+    (window as any)?.umami?.track('trigger-workflow', {
+      cloudStorage: store.selectedCloudStorage,
+      appVersion: appVersion.value,
+    });
+
     // startCheckingBuildStatus();
 
     // status.value = 'building';
@@ -154,6 +159,11 @@ async function triggerWorkflow() {
   } catch (error) {
     console.error('Error triggering workflow:', error);
     status.value = 'error';
+    (window as any)?.umami?.track('trigger-workflow-error', {
+      cloudStorage: store.selectedCloudStorage,
+      appVersion: appVersion.value,
+      error: (error as any)?.message || error,
+    });
   }
 }
 </script>
