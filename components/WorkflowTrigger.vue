@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 const store = useBuilderStore();
-const status = ref<'starting' | 'building' | 'done' | 'error'>('error');
+const status = ref<'starting' | 'building' | 'done' | 'error'>();
 
 const cloudStorage = computed(() => {
   switch (store.selectedCloudStorage) {
