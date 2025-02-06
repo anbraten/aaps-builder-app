@@ -1,10 +1,10 @@
 <template>
   <div>
     <template v-if="!store.status?.googleToken">
-      <p class="p-3 rounded-lg bg-orange-100 text-orange-700 mb-4">
+      <!-- <p class="p-3 rounded-lg bg-orange-100 text-orange-700 mb-4">
         The Google Drive integration is still in development and therefore not verified. This is expected! Please sent
         your Google email address to Anton to be able to use it.
-      </p>
+      </p> -->
 
       <a
         :href="loginUrl"

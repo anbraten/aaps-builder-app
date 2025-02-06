@@ -53,12 +53,26 @@
     >
       {{ statusMessage }}
     </div>
+
+    <template v-if="status === 'error'">
+      <p class="mt-4">
+        In some cases GitHub requires you to enable workflows manually. Therefore you simply need to press the green
+        button as visible on the screenshot below and try starting the build again.
+      </p>
+      <p>
+        Check for the enable button
+        <a :href="`https://github.com/${store.selectedRepo}/actions`" target="_blank" class="text-blue-500 underline"
+          >here</a
+        >.
+      </p>
+      <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 const store = useBuilderStore();
-const status = ref<'starting' | 'building' | 'done' | 'error'>();
+const status = ref<'starting' | 'building' | 'done' | 'error'>('error');
 
 const cloudStorage = computed(() => {
   switch (store.selectedCloudStorage) {
