@@ -65,11 +65,11 @@
       }}</span>
     </button>
 
-    <div v-if="error" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700">
+    <div v-if="error" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700 gap-2">
       <p>{{ $t('error_building_the_app') }}</p>
-      <p>{{ error }}</p>
+      <p class="whitespace-pre my-4">:::{{ `\n${error}\n` }}:::</p>
 
-      <p class="mt-4">{{ $t('in_some_cases_github_requires') }}</p>
+      <p>{{ $t('in_some_cases_github_requires') }}</p>
       <p>
         Check for the enable button
         <a :href="`https://github.com/${store.selectedRepo}/actions`" target="_blank" class="text-blue-500 underline"
