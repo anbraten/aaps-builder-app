@@ -1,23 +1,21 @@
 <template>
   <div>
     <p v-if="!completedSteps" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700 mb-4">
-      You need to complete all steps before building the app.
+      {{ $t('you_need_to_complete_all_steps') }}
     </p>
-    <p v-else class="text-gray-600 mb-4">Everything is ready to go. Let's build your app!</p>
+    <p v-else class="text-gray-600 mb-4">{{ $t('everything_is_ready_to_go') }}</p>
 
-    <p class="text-gray-600 mb-4">
-      Using
+    <i18n-t keypath="using_to_build_version" class="text-gray-600 mb-4" tag="p">
       <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline font-bold">{{
         store.selectedRepo
       }}</a>
-      to build
       <a :href="`https://github.com/nightscout/AndroidAPS`" target="_blank" class="underline font-bold"
         >nightscout/AndroidAPS</a
       >
-      version <span class="font-bold">{{ appVersion?.version }}</span
-      >. The app will be saved to <span class="font-bold">{{ cloudStorage }}</span> as
+      <span class="font-bold">{{ appVersion?.version }}</span>
+      <span class="font-bold">{{ cloudStorage }}</span>
       <span class="font-bold">AndroidAPS-{{ appVersion?.version }}.apk</span>.
-    </p>
+    </i18n-t>
 
     <button
       v-if="completedSteps && status !== 'done'"
@@ -39,7 +37,7 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         ></path>
       </svg>
-      <span>{{ status === 'starting' || status === 'building' ? 'Building the app ...' : 'Start Build' }}</span>
+      <span>{{ status === 'starting' || status === 'building' ? $t('building_the_app') : $t('start_build') }}</span>
     </button>
 
     <div
@@ -55,10 +53,7 @@
     </div>
 
     <template v-if="status === 'error'">
-      <p class="mt-4">
-        In some cases GitHub requires you to enable workflows manually. Therefore you simply need to press the green
-        button as visible on the screenshot below and try starting the build again.
-      </p>
+      <p class="mt-4">{{ $t('in_some_cases_github_requires') }}</p>
       <p>
         Check for the enable button
         <a :href="`https://github.com/${store.selectedRepo}/actions`" target="_blank" class="text-blue-500 underline"
@@ -74,6 +69,7 @@
 import confetti from 'canvas-confetti';
 
 const store = useBuilderStore();
+const { t } = useI18n();
 const status = ref<'starting' | 'building' | 'done' | 'error'>();
 
 const cloudStorage = computed(() => {
@@ -90,9 +86,8 @@ const cloudStorage = computed(() => {
 });
 
 const statusMessage = computed(() => {
-  if (status.value === 'done')
-    return `Your app should be ready soon! It should be in your ${cloudStorage.value} in a few minutes.`;
-  if (status.value === 'error') return 'Error building the app. Please try again.';
+  if (status.value === 'done') return t('your_app_should_be_ready', [cloudStorage.value]);
+  if (status.value === 'error') return t('error_building_the_app');
 
   return null;
 });

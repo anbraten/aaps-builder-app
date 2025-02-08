@@ -1,13 +1,11 @@
 <template>
   <div class="flex flex-col">
-    <p class="text-gray-600">
-      To build the AAPS app you have to fork (create your own copy) of the
+    <i18n-t keypath="to_build_the_aaps_app" tag="p" class="text-gray-600">
       <a :href="`https://github.com/${builderRepo}`" target="_blank" class="underline">{{ builderRepo }}</a>
-      GitHub repository. This fork will be used to build the app with your own configuration.
-    </p>
+    </i18n-t>
 
     <button @click="checkForExistingFork" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg mx-auto">
-      Check for existing fork
+      {{ $t('check_for_existing_fork') }}
     </button>
 
     <div v-if="loading" class="mt-2 text-gray-600 flex items-center justify-center">
@@ -19,30 +17,29 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         ></path>
       </svg>
-      Loading repositories...
+      {{ $t('loading_repositories') }}
     </div>
 
     <div
       v-if="!hasForkedRepo && checkedForForks"
       class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4 flex flex-col"
     >
-      <p>
-        Could not find a fork automatically. Have you forked the {{ builderRepo }} repository already? If not fork it
-        now:
-      </p>
+      <i18n-t keypath="could_not_find_a_fork" tag="p">
+        <span>{{ builderRepo }}</span>
+      </i18n-t>
 
       <a
         :href="`https://github.com/${builderRepo}/fork`"
         class="px-4 py-2 bg-green-600 text-white rounded-lg my-2 mx-auto"
         target="_blank"
-        >Fork now</a
+        >{{ $t('fork_now') }}</a
       >
 
-      <p>Or select it from the following list:</p>
+      <p>{{ $t('or_select_it_from_the') }}</p>
     </div>
 
     <template v-if="checkedForForks">
-      <p class="text-gray-600 mt-4">Select the forked repository:</p>
+      <p class="text-gray-600 mt-4">{{ $t('select_the_forked_repository') }}</p>
       <div class="relative">
         <select
           :value="store.selectedRepo"
@@ -50,14 +47,11 @@
           class="w-full p-2 border rounded-lg appearance-none bg-white pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           :disabled="loading"
         >
-          <option value="">Select a repository</option>
+          <option value="">{{ $t('select_a_repository') }}</option>
           <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
             {{ repo.full_name }}
-            {{ repo.full_name.endsWith(`/${builderRepoName}`) ? '(This one seems to be it)' : '' }}
+            {{ repo.full_name.endsWith(`/${builderRepoName}`) ? `(${$t('this_one_seems_to_be_it')})` : '' }}
           </option>
-          <!-- <option v-if="repos.length === 0 && store.selectedRepo" :value="store.selectedRepo">
-          {{ store.selectedRepo }} (This one seems to be it)
-        </option> -->
         </select>
         <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
           <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">

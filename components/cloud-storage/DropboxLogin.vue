@@ -11,7 +11,7 @@
           d="m3 6.2l5 3.19l5-3.19L8 3zm10 0l5 3.19l5-3.19L18 3zM3 12.55l5 3.19l5-3.19l-5-3.2zm15-3.2l-5 3.2l5 3.19l5-3.19zM8.03 16.8l5.01 3.2l5-3.2l-5-3.19z"
         />
       </svg>
-      <span>Connect to your Dropbox</span>
+      <span>{{ $t('connect_to_your_dropbox') }}</span>
     </a>
 
     <template v-else>
@@ -22,7 +22,7 @@
             d="m3 6.2l5 3.19l5-3.19L8 3zm10 0l5 3.19l5-3.19L18 3zM3 12.55l5 3.19l5-3.19l-5-3.2zm15-3.2l-5 3.2l5 3.19l5-3.19zM8.03 16.8l5.01 3.2l5-3.2l-5-3.19z"
           />
         </svg>
-        <span>Connected to your Dropbox</span>
+        <span>{{ $t('connected_to_your_dropbox') }}</span>
       </div>
     </template>
   </div>

@@ -1,8 +1,6 @@
 <template>
   <div class="flex flex-col gap-2">
-    <p class="text-gray-600 mb-4">
-      A Key Store is required to sign your app. You probably have one already if you have used AndroidAPS before.
-    </p>
+    <p class="text-gray-600 mb-4">{{ $t('a_key_store_is_required') }}</p>
 
     <input type="file" accept=".jks" @change="selectFile" />
 
@@ -10,20 +8,20 @@
       <input
         v-model="store.keyStore.password"
         type="password"
-        placeholder="KeyStore password"
+        :placeholder="$t('keystore_password')"
         class="border border-gray-400 rounded-md px-2 py-1"
       />
 
       <input
         v-model="store.keyStore.keyAlias"
         type="text"
-        placeholder="Key alias"
+        :placeholder="$t('key_alias')"
         class="mt-4 border border-gray-400 rounded-md px-2 py-1"
       />
       <input
         v-model="store.keyStore.keyPassword"
         type="password"
-        placeholder="Key password"
+        :placeholder="$t('key_password')"
         class="border border-gray-400 rounded-md px-2 py-1"
       />
     </template>
