@@ -71,6 +71,8 @@
 </template>
 
 <script setup lang="ts">
+import confetti from 'canvas-confetti';
+
 const store = useBuilderStore();
 const status = ref<'starting' | 'building' | 'done' | 'error'>();
 
@@ -146,6 +148,8 @@ async function triggerWorkflow() {
         cloudStorage: store.selectedCloudStorage,
       },
     });
+
+    void confetti({ particleCount: 100, spread: 70, origin: { y: 1.1 }, startVelocity: 90, zIndex: 2000, ticks: 400 });
 
     (window as any)?.umami?.track('trigger-workflow', {
       cloudStorage: store.selectedCloudStorage,
