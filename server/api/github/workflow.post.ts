@@ -3,7 +3,7 @@ import { Octokit } from '@octokit/rest';
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
   const githubToken = cookies.github_token;
-  const { repoFullName, keyStore, cloudStorage } = await readBody<{
+  const { repoFullName, keyStore, cloudStorage, flavor } = await readBody<{
     repoFullName: string;
     keyStore: {
       content: string;
@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
       keyPassword: string;
     };
     cloudStorage: 'google-drive' | 'dropbox' | 'github-artifact';
+    flavor: 'app' | 'wear';
   }>(event);
 
   if (!githubToken) {
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
         googleDriveAccessToken: cloudStorage === 'google-drive' ? cookies.google_token || '' : '',
         dropboxAccessToken: cloudStorage === 'dropbox' ? cookies.dropbox_token || '' : '',
         uploadAsArtifact: cloudStorage === 'github-artifact',
+        flavor,
       },
     });
 
