@@ -1,0 +1,10 @@
+{
+  "back": "Zurück",
+  "continue": "Weiter",
+  "start_build": "AAPS bauen",
+  "i_have_read_the_aaps": "Ich habe die AAPS-Dokumentation gelesen und verstehe, dass ich alles auf eigenes Risiko mache. Grundsätzlich nur zu Bildungszwecken.",
+  "this_app_helps_you_to_build": "Diese App hilft dir, {0} mit Github Workflows zu erstellen. Es verwendet im Grunde einen Computer im Internet, um die App zu erstellen. Dies erstellt die gleiche APK-Datei, die du auf deinem lokalen Computer erhalten würdest, wenn du Android Studio verwendest.",
+  "please_make_sure_that_you": "Bitte stelle sicher, dass DU verstehst, wie AAPS funktioniert und was es tut, bevor du es baust und verwendest!",
+  "the_is_a_great_place_to": "Die {0} ist ein großartiger Ort, um AAPS kennenzulernen.",
+  "documentation": "Dokumentation"
+}
