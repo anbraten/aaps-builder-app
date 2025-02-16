@@ -18,7 +18,7 @@
         class="p-4 border-2 rounded-md"
         :class="{
           'cursor-pointer': status === 'todo',
-          'border-gray-300 bg-gray-200': flavor === 'app',
+          'border-green-300 bg-green-200': flavor === 'app',
         }"
         @click="status === 'todo' && (flavor = 'app')"
       >
@@ -28,7 +28,7 @@
         class="p-4 border-2 rounded-md"
         :class="{
           'cursor-pointer': status === 'todo',
-          'border-gray-300 bg-gray-200': flavor === 'wear',
+          'border-green-300 bg-green-200': flavor === 'wear',
         }"
         @click="status === 'todo' && (flavor = 'wear')"
       >
@@ -208,7 +208,7 @@ async function startBuild() {
     try {
       await step.run();
     } catch (e) {
-      const eStr = (error as any)?.message || error;
+      const eStr = JSON.stringify((error as any)?.message || error);
       track('trigger-workflow-error', {
         cloudStorage: store.selectedCloudStorage,
         appVersion: appVersion.value,
@@ -216,6 +216,7 @@ async function startBuild() {
       });
       console.error('Error running build step:', e);
       error.value = `Error running build step: ${eStr}`;
+      status.value = 'todo';
       return;
     }
   }
