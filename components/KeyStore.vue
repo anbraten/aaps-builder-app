@@ -2,7 +2,10 @@
   <div class="flex flex-col gap-2">
     <p class="text-gray-600 mb-4">{{ $t('a_key_store_is_required') }}</p>
 
-    <input type="file" accept=".jks" @change="selectFile" />
+    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg mx-auto w-full" @click="uploadKeyStore">
+      {{ store.keyStore.content ? $t('change_keystore') : $t('upload_keystore') }}
+    </button>
+    <input ref="keyStoreFileInput" type="file" accept=".jks" class="hidden" @change="selectFile" />
 
     <template v-if="store.keyStore.content">
       <input
@@ -52,5 +55,14 @@ async function selectFile(event: Event) {
 
   // Read the file as a Data URL (Base64 encoded)
   reader.readAsDataURL(file);
+}
+
+const keyStoreFileInput = ref<HTMLInputElement | null>(null);
+async function uploadKeyStore() {
+  if (!keyStoreFileInput.value) {
+    throw new Error('keyStoreFileInput is not defined');
+  }
+
+  keyStoreFileInput.value.click();
 }
 </script>

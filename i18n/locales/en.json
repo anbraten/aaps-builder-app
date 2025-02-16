@@ -39,5 +39,7 @@
   "your_app_should_be_ready": "Your app should be ready soon! It should be visible as {0} in {1} in a few minutes.",
   "you_need_to_complete_all_steps": "You need to complete all steps first before building the app.",
   "everything_is_ready_to_go": "Everything is ready. Let's build {0} version {1} with {2}!",
-  "building_the_app": "Building the app ..."
+  "building_the_app": "Building the app ...",
+  "change_keystore": "Change KeyStore",
+  "upload_keystore": "Upload KeyStore"
 }

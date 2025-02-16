@@ -38,7 +38,7 @@
       <p>{{ $t('or_select_it_from_the') }}</p>
     </div>
 
-    <template v-if="checkedForForks">
+    <template v-if="checkedForForks || store.selectedRepo">
       <p class="text-gray-600 mt-4">{{ $t('select_the_forked_repository') }}</p>
       <div class="relative">
         <select
@@ -48,7 +48,16 @@
           :disabled="loading"
         >
           <option value="">{{ $t('select_a_repository') }}</option>
-          <option v-for="repo in repos" :key="repo.id" :value="repo.full_name">
+          <option
+            v-for="repo in [
+              ...repos,
+              {
+                full_name: store.selectedRepo,
+              },
+            ]"
+            :key="repo.full_name"
+            :value="repo.full_name"
+          >
             {{ repo.full_name }}
             {{ repo.full_name.endsWith(`/${builderRepoName}`) ? `(${$t('this_one_seems_to_be_it')})` : '' }}
           </option>
