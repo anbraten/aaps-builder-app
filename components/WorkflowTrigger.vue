@@ -41,12 +41,9 @@
 
       <template v-if="error?.includes('Please update your fork')">
         <i18n-t keypath="please_update_your_fork" tag="p">
-          <a
-            :href="`https://github.com/${store.selectedRepo}/actions`"
-            target="_blank"
-            class="text-blue-500 underline"
-            >{{ $t('here') }}</a
-          >
+          <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="text-blue-500 underline">{{
+            $t('here')
+          }}</a>
         </i18n-t>
 
         <img src="/sync-fork.png" alt="Update your fork" class="mt-4 mx-auto" />
