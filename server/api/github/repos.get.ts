@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   if (!token) {
     throw createError({
       statusCode: 401,
-      message: 'Not authenticated',
+      statusMessage: 'Not authenticated',
     });
   }
 
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     console.error('Error fetching repos:', error);
     throw createError({
       statusCode: 500,
-      message: 'Failed to fetch repositories',
+      statusMessage: 'Failed to fetch repositories',
     });
   }
 });

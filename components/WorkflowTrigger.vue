@@ -22,7 +22,7 @@
         }"
         @click="status === 'todo' && (flavor = 'app')"
       >
-        📱 App
+        📱 {{ $t('app') }}
       </div>
       <div
         class="p-4 border-2 rounded-md"
@@ -32,18 +32,61 @@
         }"
         @click="status === 'todo' && (flavor = 'wear')"
       >
-        ⌚ Wear
+        ⌚ {{ $t('wear') }}
       </div>
+    </div>
+
+    <div v-if="error" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700 gap-2 flex flex-col">
+      <p class="mx-auto mb-2 font-bold">{{ $t('error_occurred') }}</p>
+
+      <template v-if="error?.includes('Please update your fork')">
+        <i18n-t keypath="please_update_your_fork" tag="p">
+          <a
+            :href="`https://github.com/${store.selectedRepo}/actions`"
+            target="_blank"
+            class="text-blue-500 underline"
+            >{{ $t('here') }}</a
+          >
+        </i18n-t>
+
+        <img src="/sync-fork.png" alt="Update your fork" class="mt-4 mx-auto" />
+      </template>
+      <template v-else-if="error?.includes('Workflow not found')">
+        <i18n-t keypath="is_your_fork_of_aaps_builder" tag="p">
+          <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline font-bold">{{
+            store.selectedRepo
+          }}</a>
+        </i18n-t>
+      </template>
+      <template v-else-if="error?.includes('Workflow not found')">
+        <p>{{ $t('in_some_cases_github_requires') }}</p>
+        <i18n-t keypath="check_for_the_enable_button" tag="p">
+          <a
+            :href="`https://github.com/${store.selectedRepo}/actions`"
+            target="_blank"
+            class="text-blue-500 underline"
+            >{{ $t('here') }}</a
+          >
+        </i18n-t>
+        <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
+      </template>
+      <template v-else>
+        <p class="whitespace-pre my-4">:::{{ '\n' }}{{ error }}{{ '\n' }}:::</p>
+      </template>
     </div>
 
     <button
       v-if="completedSteps && status !== 'done'"
-      :disabled="status === 'starting' || status === 'building'"
-      class="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+      :disabled="status === 'building'"
+      class="w-full text-white px-4 mt-4 py-2 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+      :class="{
+        'bg-green-500 hover:bg-green-600': error === undefined,
+        'bg-red-500 hover:bg-red-600': error !== undefined,
+      }"
       @click="startBuild"
     >
       <svg
-        v-if="status === 'starting' || status === 'building'"
+        v-if="status === 'building'"
         class="animate-spin h-5 w-5 mr-2"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -56,28 +99,10 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         ></path>
       </svg>
-      <span>{{
-        activeBuildStep !== undefined
-          ? `${buildSteps[activeBuildStep].title} ...`
-          : flavor === 'wear'
-            ? $t('start_build_wear')
-            : $t('start_build_app')
-      }}</span>
+      <span v-if="error !== undefined">{{ $t('try_again') }}</span>
+      <span v-else-if="activeBuildStep !== undefined">{{ buildSteps[activeBuildStep].title }} ...</span>
+      <span v-else>{{ flavor === 'wear' ? $t('start_build_wear') : $t('start_build_app') }}</span>
     </button>
-
-    <div v-if="error" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700 gap-2">
-      <p>{{ $t('error_building_the_app') }}</p>
-      <p class="whitespace-pre my-4">:::{{ `\n${error}\n` }}:::</p>
-
-      <p>{{ $t('in_some_cases_github_requires') }}</p>
-      <p>
-        Check for the enable button
-        <a :href="`https://github.com/${store.selectedRepo}/actions`" target="_blank" class="text-blue-500 underline"
-          >here</a
-        >.
-      </p>
-      <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
-    </div>
 
     <template v-if="status === 'done'">
       <div class="mt-4 p-3 rounded-lg bg-green-100 text-green-700">
@@ -123,18 +148,15 @@ type BuildStep = {
 
 const buildSteps: BuildStep[] = [
   {
-    title: 'Checking fork repository is up to date',
-    run: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // throw new Error('Please update your fork');
-    },
+    title: t('checking_fork_repository'),
+    run: checkForkVersion,
   },
   {
-    title: 'Starting workflow',
+    title: t('starting_workflow'),
     run: triggerWorkflow,
   },
   {
-    title: 'Waiting for workflow to finish',
+    title: t('waiting_for_workflow'),
     run: async () => {
       await new Promise((resolve) => setTimeout(resolve, 3 * 1000)); // wait some time
       // TODO: implement checking build status
@@ -142,6 +164,33 @@ const buildSteps: BuildStep[] = [
   },
 ];
 const activeBuildStep = ref<number>();
+
+async function checkForkVersion() {
+  const response = await $fetch('/api/github/check-fork', {
+    method: 'POST',
+    body: {
+      repoFullName: store.selectedRepo,
+    },
+  });
+
+  if (!response.isUpToDate) {
+    throw new Error('Please update your fork');
+  }
+}
+
+async function triggerWorkflow() {
+  await $fetch('/api/github/workflow', {
+    method: 'POST',
+    body: {
+      // github and cloud storage tokens are provided as cookies
+      repoFullName: store.selectedRepo,
+      // appVersion: appVersion?.version, // TODO: pass app version
+      keyStore: store.keyStore,
+      cloudStorage: store.selectedCloudStorage,
+      flavor: flavor.value,
+    },
+  });
+}
 
 // TODO: check build status and notify user
 // const checkBuildInterval = ref<number>();
@@ -174,27 +223,14 @@ const activeBuildStep = ref<number>();
 //   stopCheckingBuildStatus();
 // });
 
-async function triggerWorkflow() {
-  await $fetch('/api/github/workflow', {
-    method: 'POST',
-    body: {
-      // github and cloud storage tokens are provided as cookies
-      repoFullName: store.selectedRepo,
-      // appVersion: appVersion?.version, // TODO: pass app version
-      keyStore: store.keyStore,
-      cloudStorage: store.selectedCloudStorage,
-      flavor: flavor.value,
-    },
-  });
-}
-
 function track(event: string, data: any) {
   const umami = (window as any)?.umami;
-  umami.track(event, data);
+  umami?.track(event, data);
 }
 
 async function startBuild() {
   error.value = undefined;
+  activeBuildStep.value = undefined;
   status.value = 'building';
 
   track('trigger-workflow', {
@@ -208,19 +244,21 @@ async function startBuild() {
     try {
       await step.run();
     } catch (e) {
-      const eStr = JSON.stringify((error as any)?.message || error);
+      console.error('Error running build step:', e, JSON.stringify(e));
+      const eStr = (e as any)?.message || e;
       track('trigger-workflow-error', {
         cloudStorage: store.selectedCloudStorage,
         appVersion: appVersion.value,
         error: eStr,
       });
-      console.error('Error running build step:', e);
-      error.value = `Error running build step: ${eStr}`;
+      error.value = eStr;
       status.value = 'todo';
+      activeBuildStep.value = undefined;
       return;
     }
   }
   void confetti({ particleCount: 100, spread: 70, origin: { y: 1.1 }, startVelocity: 90, zIndex: 2000, ticks: 400 });
   status.value = 'done';
+  activeBuildStep.value = undefined;
 }
 </script>

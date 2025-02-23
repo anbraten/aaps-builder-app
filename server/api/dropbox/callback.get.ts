@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     console.error('Dropbox auth error:', error);
     throw createError({
       statusCode: 500,
-      message: 'Failed to authenticate with Dropbox',
+      statusMessage: 'Failed to authenticate with Dropbox',
     });
   }
 });

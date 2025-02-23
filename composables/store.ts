@@ -17,6 +17,8 @@ type Step = {
 };
 
 export const useBuilderStore = defineStore('aaps_builder', () => {
+  const { t } = useI18n();
+
   const { data: status, refresh: refreshStatus } = useFetch('/api/status');
 
   const selectedRepo = useLocalStorage(`${prefix}selected_repo`, '');
@@ -43,26 +45,26 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
 
   const steps: Step[] = [
     {
-      name: 'GitHub',
-      title: 'Login to GitHub',
+      name: t('github'),
+      title: t('login_to_github'),
       isDone: computed(() => status.value?.githubToken === true),
       component: GitHubLogin,
     },
     {
-      name: 'Repository',
-      title: 'Select a repository',
+      name: t('repository'),
+      title: t('select_a_repository'),
       isDone: computed(() => selectedRepo.value !== '' && selectedRepo.value !== null),
       component: RepoSelector,
     },
     {
-      name: 'KeyStore',
-      title: 'Setup a KeyStore',
+      name: t('key_store'),
+      title: t('setup_a_key_store'),
       isDone: keyStoreConfigured,
       component: KeyStore,
     },
     {
-      name: 'Cloud Storage',
-      title: 'Setup a Cloud Storage',
+      name: t('cloud_storage'),
+      title: t('select_a_cloud_storage'),
       isDone: computed(() => {
         if (selectedCloudStorage.value === 'google-drive') {
           return status.value?.googleToken === true;
@@ -77,8 +79,8 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
       component: CloudStorage,
     },
     {
-      name: 'Build',
-      title: 'Build',
+      name: t('build'),
+      title: t('build'),
       isDone: computed(() => false),
       component: WorkflowTrigger,
     },

@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     console.error('Google auth error:', error);
     throw createError({
       statusCode: 500,
-      message: 'Failed to authenticate with Google',
+      statusMessage: 'Failed to authenticate with Google',
     });
   }
 });

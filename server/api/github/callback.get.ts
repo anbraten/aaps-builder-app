@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     console.error('GitHub auth error:', error);
     throw createError({
       statusCode: 500,
-      message: 'Failed to authenticate with GitHub',
+      statusMessage: 'Failed to authenticate with GitHub',
     });
   }
 });
