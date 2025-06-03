@@ -28,6 +28,10 @@ export default defineNuxtConfig({
       githubClientId: process.env.GITHUB_CLIENT_ID,
       googleClientId: process.env.GOOGLE_CLIENT_ID,
       dropboxClientId: process.env.DROPBOX_CLIENT_ID,
+      sentry: {
+        dsn: 'https://YB3sU2o9HKJAkdjY6wYQMdzfle6Ew49J@bugslide.vercel.app/6',
+        environment: 'development',
+      },
     },
   },
 
