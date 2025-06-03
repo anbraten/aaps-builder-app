@@ -3,6 +3,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-19',
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
 
+  sourcemap: true,
+
   app: {
     head: {
       title: 'AAPS Builder',
