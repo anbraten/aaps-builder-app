@@ -55,7 +55,7 @@
           }}</a>
         </i18n-t>
       </template>
-      <template v-else-if="error?.includes('Workflow not found')">
+      <template v-else-if="error?.includes('actions disabled')">
         <p>{{ $t('in_some_cases_github_requires') }}</p>
         <i18n-t keypath="check_for_the_enable_button" tag="p">
           <a

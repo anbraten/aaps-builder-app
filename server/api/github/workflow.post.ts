@@ -48,6 +48,16 @@ export default defineEventHandler(async (event) => {
     return { success: true };
   } catch (error) {
     console.error('Error triggering workflow:', error);
+
+    if (error instanceof Error) {
+      if (error.message.includes('404')) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Repository not found or actions disabled',
+        });
+      }
+    }
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to trigger workflow',
