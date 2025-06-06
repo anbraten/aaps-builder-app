@@ -15,8 +15,13 @@ export default defineNitroPlugin((nitroApp) => {
   Sentry.init({
     dsn: sentry.dsn,
     environment: sentry.environment,
-    release: 'commit:abcdefg12345',
-    integrations: [nodeProfilingIntegration()],
+    release: 'latest', // TODO: use proper release version
+    integrations: [
+      nodeProfilingIntegration(),
+      Sentry.captureConsoleIntegration({
+        levels: ['error'],
+      }),
+    ],
     // Performance Monitoring
     tracesSampleRate: 0.2,
     // Set sampling rate for profiling - this is relative to tracesSampleRate
