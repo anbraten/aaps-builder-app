@@ -55,19 +55,19 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    if (error.message.includes('404')) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Repository not found or actions disabled',
-      });
-    }
-
     if (error instanceof RequestError) {
       console.error('Error from GitHub API:', error.name, error.message, {
         status: error.status,
         cause: error.cause,
         response: error.response?.data,
       });
+
+      if (error.status === 404) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Repository not found or actions disabled',
+        });
+      }
 
       throw createError({
         statusCode: error.status,

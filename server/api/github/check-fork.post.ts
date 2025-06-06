@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest';
+import { RequestError } from '@octokit/request-error';
 
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
     if (Array.isArray(data) || data.type !== 'file') {
       throw createError({
         statusCode: 404,
-        statusMessage: 'File not found',
+        statusMessage: 'File not found on original repo',
       });
     }
 
@@ -43,16 +44,19 @@ export default defineEventHandler(async (event) => {
     if (Array.isArray(dataFork) || dataFork.type !== 'file') {
       throw createError({
         statusCode: 404,
-        statusMessage: 'File not found',
+        statusMessage: 'File not found on forked repo',
       });
     }
+
     return { isUpToDate: data.sha === dataFork.sha };
   } catch (error) {
-    if (error?.response?.status === 404) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Repo or Workflow not found',
-      });
+    if (error instanceof RequestError) {
+      if (error?.status === 404) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Repo or Workflow not found',
+        });
+      }
     }
 
     console.error('Error fetching repos:', error);
