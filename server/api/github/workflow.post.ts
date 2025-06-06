@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest';
+import { RequestError } from '@octokit/request-error';
 
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const octokit = new Octokit({ auth: githubToken });
     const [owner, repo] = repoFullName.split('/');
 
-    await octokit.actions.createWorkflowDispatch({
+    await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
       owner,
       repo,
       workflow_id: 'build.yml',
@@ -47,15 +48,31 @@ export default defineEventHandler(async (event) => {
 
     return { success: true };
   } catch (error) {
-    console.error('Error triggering workflow:', error);
+    if (!(error instanceof Error)) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'An unexpected error occurred',
+      });
+    }
 
-    if (error instanceof Error) {
-      if (error.message.includes('404')) {
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Repository not found or actions disabled',
-        });
-      }
+    if (error.message.includes('404')) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Repository not found or actions disabled',
+      });
+    }
+
+    if (error instanceof RequestError) {
+      console.error('Error from GitHub API:', error.name, error.message, {
+        status: error.status,
+        cause: error.cause,
+        response: error.response?.data,
+      });
+
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      });
     }
 
     throw createError({
