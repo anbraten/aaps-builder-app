@@ -27,6 +27,19 @@ export default defineEventHandler(async (event) => {
     const octokit = new Octokit({ auth: githubToken });
     const [owner, repo] = repoFullName.split('/');
 
+    const workflows = await octokit.request('GET /repos/{owner}/{repo}/actions/workflows', {
+      owner,
+      repo,
+    });
+
+    const workflowExists = workflows.data.workflows.some((workflow) => workflow.path === '.github/workflows/build.yml');
+    if (!workflowExists) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Workflow not found or actions disabled',
+      });
+    }
+
     await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
       owner,
       repo,
@@ -59,15 +72,8 @@ export default defineEventHandler(async (event) => {
       console.error('Error from GitHub API:', error.name, error.message, {
         status: error.status,
         cause: error.cause,
-        response: error.response?.data,
+        response: JSON.stringify(error.response?.data),
       });
-
-      if (error.status === 404) {
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Repository not found or actions disabled',
-        });
-      }
 
       throw createError({
         statusCode: error.status,
