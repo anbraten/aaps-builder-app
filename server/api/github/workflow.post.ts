@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // wait a bit to ensure the workflow is registered
-    await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
+    await new Promise((resolve) => setTimeout(resolve, 1000 * 5));
 
     const created = new Date(Date.now() - 1000 * 60 * 5).toISOString().slice(0, 19) + 'Z'; // last 5 minutes
 

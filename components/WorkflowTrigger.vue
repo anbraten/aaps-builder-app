@@ -79,7 +79,10 @@
           >.
         </p>
         <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
-        <p>If you have already enabled them, please try again otherwise contact Anton for help.</p>
+        <p>If you have already enabled them, please try again or ask some expert for help.</p>
+      </template>
+      <template v-else-if="error?.includes('Workflow execution failed')">
+        The workflow execution failed. Please check the logs on GitHub for more details or ask some expert.
       </template>
       <template v-else>
         <p class="whitespace-pre-wrap my-4">:::{{ '\n' }}{{ error }}{{ '\n' }}:::</p>
@@ -114,6 +117,13 @@
       <span v-else-if="activeBuildStep !== undefined">{{ buildSteps[activeBuildStep].title }} ...</span>
       <span v-else>{{ flavor === 'wear' ? $t('start_build_wear') : $t('start_build_app') }}</span>
     </button>
+
+    <template v-if="activeBuildStep && buildSteps[activeBuildStep].title === t('waiting_for_workflow')">
+      <p class="mt-4">
+        Yeah 🎉, the workflow has been triggered and is now running. The app is being built now. This can take a few
+        minutes. You could check your {{ cloudStorage }} meanwhile to see if the app is already there.
+      </p>
+    </template>
 
     <template v-if="status === 'done'">
       <div class="mt-4 p-3 rounded-lg bg-green-100 text-green-700">
@@ -200,6 +210,14 @@ async function triggerWorkflow() {
     },
   });
   workflowRunId.value = response.workflowRunId;
+  void confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 1.1 },
+    startVelocity: 90,
+    zIndex: 2000,
+    ticks: 400,
+  });
 }
 
 const checkBuildTimeoutId = ref<number>();
@@ -219,11 +237,13 @@ async function checkBuildStatus() {
       }
 
       if (response.status === 'success') {
+        clearInterval(checkBuildTimeoutId.value);
         resolve();
         return;
       }
 
       if (response.status === 'failed') {
+        clearInterval(checkBuildTimeoutId.value);
         reject(new Error('Workflow execution failed. Logs: ')); // TODO: add link to logs
         return;
       }
@@ -267,14 +287,6 @@ async function startBuild() {
     }
   }
 
-  void confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 1.1 },
-    startVelocity: 90,
-    zIndex: 2000,
-    ticks: 400,
-  });
   status.value = 'done';
   activeBuildStep.value = undefined;
 }
