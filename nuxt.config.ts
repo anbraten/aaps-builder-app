@@ -1,3 +1,5 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin';
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-19',
@@ -50,5 +52,19 @@ export default defineNuxtConfig({
     //   cookieKey: 'i18n_redirected',
     //   redirectOn: 'root', // recommended
     // },
+  },
+
+  vite: {
+    plugins: [
+      sentryVitePlugin({
+        url: 'https://bugslide.vercel.app',
+        org: process.env.SENTRY_ORG ?? 'ignored',
+        project: process.env.SENTRY_PROJECT ?? 'ignored',
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        release: {
+          name: process.env.VERCEL_GIT_COMMIT_SHA ?? '1.2.3',
+        },
+      }),
+    ],
   },
 });
