@@ -10,6 +10,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     return;
   }
 
+  if (import.meta.dev) {
+    return;
+  }
+
   Sentry.init({
     app: nuxtApp.vueApp,
     dsn: sentry.dsn,

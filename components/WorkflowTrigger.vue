@@ -67,8 +67,22 @@
         </i18n-t>
         <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
       </template>
+      <template v-else-if="error?.includes('No queued or running workflow found')">
+        <p>
+          Strange, we have triggered the workflow, but it seems not to be queued or running. Please check if you have
+          enabled GitHub Actions for your fork
+          <a
+            :href="`https://github.com/${store.selectedRepo}/actions`"
+            target="_blank"
+            class="text-blue-500 underline"
+            >{{ $t('here') }}</a
+          >.
+        </p>
+        <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
+        <p>If you have already enabled them, please try again otherwise contact Anton for help.</p>
+      </template>
       <template v-else>
-        <p class="whitespace-pre my-4">:::{{ '\n' }}{{ error }}{{ '\n' }}:::</p>
+        <p class="whitespace-pre-wrap my-4">:::{{ '\n' }}{{ error }}{{ '\n' }}:::</p>
       </template>
     </div>
 
@@ -154,10 +168,7 @@ const buildSteps: BuildStep[] = [
   },
   {
     title: t('waiting_for_workflow'),
-    run: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 3 * 1000)); // wait some time
-      // TODO: implement checking build status
-    },
+    run: checkBuildStatus,
   },
 ];
 const activeBuildStep = ref<number>();
@@ -175,8 +186,9 @@ async function checkForkVersion() {
   }
 }
 
+const workflowRunId = ref<number>();
 async function triggerWorkflow() {
-  await $fetch('/api/github/workflow', {
+  const response = await $fetch('/api/github/workflow', {
     method: 'POST',
     body: {
       // github and cloud storage tokens are provided as cookies
@@ -187,38 +199,43 @@ async function triggerWorkflow() {
       flavor: flavor.value,
     },
   });
+  workflowRunId.value = response.workflowRunId;
 }
 
-// TODO: check build status and notify user
-// const checkBuildInterval = ref<number>();
-// async function startCheckingBuildStatus() {
-//   checkBuildInterval.value = window.setInterval(async () => {
-//     const response = await $fetch<{
-//       status: 'building' | 'done' | 'error';
-//     }>('/api/github/workflow', {
-//       method: 'GET',
-//       query: {
-//         repoFullName: store.selectedRepo,
-//         // TODO: pass workflow id or sth
-//       },
-//     });
+const checkBuildTimeoutId = ref<number>();
+async function checkBuildStatus() {
+  await new Promise<void>((resolve, reject) => {
+    checkBuildTimeoutId.value = window.setInterval(async () => {
+      const response = await $fetch('/api/github/check-run-status', {
+        method: 'GET',
+        query: {
+          repoFullName: store.selectedRepo,
+          runId: workflowRunId.value,
+        },
+      });
 
-//     if (response.status === 'done' || response.status === 'error') {
-//       status.value = response.status;
-//       clearInterval(checkBuildInterval.value);
-//     }
-//   }, 1000 * 10);
-// }
+      if (response.status === 'in_progress') {
+        return;
+      }
 
-// function stopCheckingBuildStatus() {
-//   if (checkBuildInterval.value !== undefined) {
-//     clearInterval(checkBuildInterval.value);
-//   }
-// }
+      if (response.status === 'success') {
+        resolve();
+        return;
+      }
 
-// onBeforeUnmount(() => {
-//   stopCheckingBuildStatus();
-// });
+      if (response.status === 'failed') {
+        reject(new Error('Workflow execution failed. Logs: ')); // TODO: add link to logs
+        return;
+      }
+    }, 1000 * 10);
+  });
+}
+
+onBeforeUnmount(() => {
+  if (checkBuildTimeoutId.value !== undefined) {
+    window.clearTimeout(checkBuildTimeoutId.value);
+  }
+});
 
 function track(event: string, data: any) {
   const umami = (window as any)?.umami;
@@ -243,18 +260,21 @@ async function startBuild() {
     } catch (e) {
       console.error('Error running build step:', e, JSON.stringify(e));
       const eStr = (e as any)?.message || e;
-      track('trigger-workflow-error', {
-        cloudStorage: store.selectedCloudStorage,
-        appVersion: appVersion.value,
-        error: eStr,
-      });
       error.value = eStr;
       status.value = 'todo';
       activeBuildStep.value = undefined;
       return;
     }
   }
-  void confetti({ particleCount: 100, spread: 70, origin: { y: 1.1 }, startVelocity: 90, zIndex: 2000, ticks: 400 });
+
+  void confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 1.1 },
+    startVelocity: 90,
+    zIndex: 2000,
+    ticks: 400,
+  });
   status.value = 'done';
   activeBuildStep.value = undefined;
 }

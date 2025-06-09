@@ -61,6 +61,7 @@ export default defineNuxtConfig({
         org: process.env.SENTRY_ORG ?? 'ignored',
         project: process.env.SENTRY_PROJECT ?? 'ignored',
         authToken: process.env.SENTRY_AUTH_TOKEN,
+        telemetry: false,
         release: {
           name: process.env.VERCEL_GIT_COMMIT_SHA ?? '1.2.3',
         },

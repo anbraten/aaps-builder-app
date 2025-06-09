@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { H3Error } from 'h3';
 
 export default defineNitroPlugin((nitroApp) => {
@@ -12,12 +11,15 @@ export default defineNitroPlugin((nitroApp) => {
     return;
   }
 
+  if (import.meta.dev) {
+    return;
+  }
+
   Sentry.init({
     dsn: sentry.dsn,
     environment: sentry.environment,
     release: 'latest', // TODO: use proper release version
     integrations: [
-      nodeProfilingIntegration(),
       Sentry.captureConsoleIntegration({
         levels: ['error'],
       }),

@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const octokit = new Octokit({ auth: githubToken });
     const [owner, repo] = repoFullName.split('/');
 
-    const workflows = await octokit.request('GET /repos/{owner}/{repo}/actions/workflows', {
+    const workflows = await octokit.actions.listRepoWorkflows({
       owner,
       repo,
     });
@@ -40,7 +40,20 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+    // Try to enable the workflow if it's not already enabled
+    const enableWorkflow = await octokit.actions.enableWorkflow({
+      owner,
+      repo,
+      workflow_id: 'build.yml',
+    });
+    if (enableWorkflow.status !== 204) {
+      throw createError({
+        statusCode: enableWorkflow.status,
+        statusMessage: 'Failed to enable workflow',
+      });
+    }
+
+    const response = await octokit.actions.createWorkflowDispatch({
       owner,
       repo,
       workflow_id: 'build.yml',
@@ -58,16 +71,42 @@ export default defineEventHandler(async (event) => {
         flavor,
       },
     });
-
-    return { success: true };
-  } catch (error) {
-    if (!(error instanceof Error)) {
+    if (response.status !== 204) {
       throw createError({
-        statusCode: 500,
-        statusMessage: 'An unexpected error occurred',
+        statusCode: response.status,
+        statusMessage: 'Failed to trigger workflow',
       });
     }
 
+    // wait a bit to ensure the workflow is registered
+    await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
+
+    const created = new Date(Date.now() - 1000 * 60 * 5).toISOString().slice(0, 19) + 'Z'; // last 5 minutes
+
+    // Check if we have a running workflow
+    const runs = await octokit.actions.listWorkflowRuns({
+      owner,
+      repo,
+      workflow_id: 'build.yml',
+      created: `>${created}`,
+    });
+    const inProgressRuns = runs.data.workflow_runs.filter(
+      (run) =>
+        run.status === 'in_progress' ||
+        run.status === 'queued' ||
+        run.status === 'pending' ||
+        run.status === 'waiting' ||
+        run.status === 'requested',
+    );
+    if (inProgressRuns.length === 0) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'No queued or running workflow found',
+      });
+    }
+
+    return { success: true, workflowRunId: inProgressRuns[0].id };
+  } catch (error) {
     if (error instanceof RequestError) {
       console.error('Error from GitHub API:', error.name, error.message, {
         status: error.status,
@@ -80,6 +119,16 @@ export default defineEventHandler(async (event) => {
         statusMessage: error.message,
       });
     }
+
+    const isNuxtError = (error: any) => {
+      return error && typeof error === 'object' && 'statusCode' in error && 'statusMessage' in error;
+    };
+
+    if (isNuxtError(error)) {
+      throw error;
+    }
+
+    console.error('Unexpected error:', error);
 
     throw createError({
       statusCode: 500,
