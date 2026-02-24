@@ -19,7 +19,9 @@ type Step = {
 export const useBuilderStore = defineStore('aaps_builder', () => {
   const { t } = useI18n();
 
-  const { data: status, refresh: refreshStatus } = useFetch('/api/status');
+  const { data: status, refresh: refreshStatus } = useFetch('/api/status', {
+    deep: true
+  });
 
   const selectedRepo = useLocalStorage(`${prefix}selected_repo`, '');
 

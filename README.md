@@ -8,14 +8,27 @@ AAPS builder allows you to build [AAPS](https://github.com/nightscout/AndroidAPS
 
 2. Go to your repository settings and add the following secrets:
 
-  - `GH_TOKEN`: Github token with access to your forked repository
-  - `SIGNING_KEY`: Base64 encoded signing key
-  - `SIGNING_KEY_PASSWORD`: Password for the signing key
-  - `SIGNING_KEY_ALIAS`: Alias for the signing key
+- `GH_TOKEN`: Github token with access to your forked repository
+- `SIGNING_KEY`: Base64 encoded signing key
+- `SIGNING_KEY_PASSWORD`: Password for the signing key
+- `SIGNING_KEY_ALIAS`: Alias for the signing key
 
 3. Run the build workflow
 
 ## TODO
 
-- [ ] Simplify secret store setup / upload
-- [ ] Enhance way to receive the build artifact without publicly storing it
+- [x] Simplify secret store setup / upload
+- [x] Enhance way to receive the build artifact without publicly storing it
+- [x] Add german translation
+- [x] Support additional cloud storages
+  - [x] Google Drive
+  - [x] Dropbox
+  - [ ] Nextcloud
+- [x] Allow building wear app
+- [ ] Help users updating the apps-builder fork
+- [ ] Allow to select aaps version
+- [ ] Enhance build steps to show if workflow is done
+- [ ] Allow to reveal password inputs
+- [x] Show if keystore was already uploaded
+- [ ] Only allow to upload keystore files
+- [ ] Show retry button if build failed
