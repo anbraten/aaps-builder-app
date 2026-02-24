@@ -42,6 +42,7 @@
   "building_the_app": "Building the app ...",
   "change_keystore": "Change KeyStore",
   "upload_keystore": "Upload KeyStore",
+  "keystore_configured": "KeyStore configured",
   "create_keystore": "Create new KeyStore",
   "create_keystore_description": "Generate a new KeyStore right in your browser. The file will be downloaded automatically — keep it safe!",
   "create_and_download_keystore": "Create & Download KeyStore",

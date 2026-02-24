@@ -42,6 +42,7 @@
   "building_the_app": "Baue die App ...",
   "change_keystore": "KeyStore ändern",
   "upload_keystore": "KeyStore hochladen",
+  "keystore_configured": "KeyStore konfiguriert",
   "create_keystore": "Neuen KeyStore erstellen",
   "create_keystore_description": "Erstelle einen neuen KeyStore direkt im Browser. Die Datei wird automatisch heruntergeladen — bewahre sie sicher auf!",
   "create_and_download_keystore": "KeyStore erstellen & herunterladen",
