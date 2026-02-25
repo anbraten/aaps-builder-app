@@ -84,5 +84,9 @@
   "cloud_storage": "Cloud-Speicher",
   "please_update_your_fork": "Dein Fork braucht anscheinend ein Update. Bitte aktualisiere ihn {0} durch Klicken auf 'Sync fork', wie auf dem Screenshot zu sehen ist und probiere es erneut.",
   "try_again": "Versuche es erneut",
-  "is_your_fork_of_aaps_builder": "Ist {0} dein Fork von aaps-builder?"
+  "is_your_fork_of_aaps_builder": "Ist {0} dein Fork von aaps-builder?",
+  "remove_keystore": "Keystore entfernen",
+  "confirm_remove": "Keystore entfernen?",
+  "yes": "Ja",
+  "no": "Nein"
 }
