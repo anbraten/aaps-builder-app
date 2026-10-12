@@ -1,5 +1,8 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 
+const release = process.env.VERCEL_GIT_COMMIT_SHA ?? 'dev';
+const environment = process.env.VERCEL_ENV ?? 'development';
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-01-19',
@@ -34,7 +37,8 @@ export default defineNuxtConfig({
       dropboxClientId: process.env.DROPBOX_CLIENT_ID,
       sentry: {
         dsn: 'https://89bYrjUVCORXM7a55TCqUHbJkCVFOiwX@bugslide.vercel.app/6',
-        environment: 'development',
+        environment,
+        release,
       },
     },
   },
@@ -63,7 +67,7 @@ export default defineNuxtConfig({
         authToken: process.env.SENTRY_AUTH_TOKEN,
         telemetry: false,
         release: {
-          name: process.env.VERCEL_GIT_COMMIT_SHA ?? '1.2.3',
+          name: release,
         },
       }),
     ],

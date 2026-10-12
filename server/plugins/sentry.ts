@@ -18,7 +18,7 @@ export default defineNitroPlugin((nitroApp) => {
   Sentry.init({
     dsn: sentry.dsn,
     environment: sentry.environment,
-    release: 'latest', // TODO: use proper release version
+    release: sentry.release,
     integrations: [
       Sentry.captureConsoleIntegration({
         levels: ['error'],
