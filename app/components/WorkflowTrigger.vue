@@ -39,7 +39,10 @@
     <div v-if="error" class="mt-4 p-3 rounded-lg bg-red-100 text-red-700 gap-2 flex flex-col">
       <p class="mx-auto mb-2 font-bold">{{ $t('error_occurred') }}</p>
 
-      <template v-if="error?.includes('Please update your fork')">
+      <template v-if="error?.includes('GitHub session expired')">
+        <p>{{ $t('github_session_expired') }}</p>
+      </template>
+      <template v-else-if="error?.includes('Please update your fork')">
         <i18n-t keypath="please_update_your_fork" tag="p">
           <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="text-blue-500 underline">{{
             $t('here')
@@ -48,7 +51,7 @@
 
         <img src="/sync-fork.png" alt="Update your fork" class="mt-4 mx-auto" />
       </template>
-      <template v-else-if="error?.includes('Workflow not found')">
+      <template v-else-if="error?.includes('Workflow not found') || error?.includes('Repo or Workflow not found')">
         <i18n-t keypath="is_your_fork_of_aaps_builder" tag="p">
           <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="underline font-bold">{{
             store.selectedRepo
@@ -80,6 +83,9 @@
         </p>
         <img src="/workflow-not-found.png" alt="Enable workflow on GitHub Screenshot" class="mt-4 mx-auto" />
         <p>If you have already enabled them, please try again or ask some expert for help.</p>
+      </template>
+      <template v-else-if="error?.includes('rate limit')">
+        <p>{{ $t('github_rate_limit') }}</p>
       </template>
       <template v-else-if="error?.includes('Workflow execution failed')">
         The workflow execution failed. Please check the logs on GitHub for more details or ask some expert.
@@ -278,6 +284,12 @@ async function startBuild() {
     try {
       await step.run();
     } catch (e) {
+      if (await store.handleGithubAuthError(e)) {
+        error.value = 'GitHub session expired';
+        status.value = 'todo';
+        activeBuildStep.value = undefined;
+        return;
+      }
       console.error('Error running build step:', e, JSON.stringify(e));
       const eStr = (e as any)?.message || e;
       error.value = eStr;

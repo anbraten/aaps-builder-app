@@ -1,22 +1,10 @@
-import { Octokit } from '@octokit/rest';
-import { RequestError } from '@octokit/request-error';
-
 export default defineEventHandler(async (event) => {
-  const cookies = parseCookies(event);
-  const token = cookies.github_token;
-
-  if (!token) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Not authenticated',
-    });
-  }
+  const octokit = useGithub(event);
 
   const { repoFullName } = await readBody<{
     repoFullName: string;
   }>(event);
 
-  const octokit = new Octokit({ auth: token });
   const [owner, repo] = repoFullName.split('/');
 
   try {
@@ -50,20 +38,6 @@ export default defineEventHandler(async (event) => {
 
     return { isUpToDate: data.sha === dataFork.sha };
   } catch (error) {
-    if (error instanceof RequestError) {
-      if (error?.status === 404) {
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Repo or Workflow not found',
-        });
-      }
-    }
-
-    console.error('Error fetching repos:', error);
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch repositories',
-    });
+    handleGithubError(event, error, 'Failed to check fork');
   }
 });

@@ -2,6 +2,10 @@ import type { OAuthTokenResponse } from '~/server/types';
 
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event);
+
+  if (!code) {
+    return sendRedirect(event, '/build?auth_error=github');
+  }
   const config = useRuntimeConfig();
 
   try {
@@ -18,20 +22,23 @@ export default defineEventHandler(async (event) => {
       }),
     });
 
+    // GitHub answers with 200 and an error payload if the code is invalid, expired or already used
+    if (!('access_token' in tokenResponse) || !tokenResponse.access_token) {
+      // expected user flow issue (reload / back button), so no need to report it as error
+      return sendRedirect(event, '/build?auth_error=github');
+    }
+
     // Set cookie with the token
     setCookie(event, 'github_token', tokenResponse.access_token, {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
-      maxAge: tokenResponse.expires_in,
+      ...(tokenResponse.expires_in ? { maxAge: tokenResponse.expires_in } : {}),
     });
 
-    sendRedirect(event, '/build');
+    return sendRedirect(event, '/build');
   } catch (error) {
     console.error('GitHub auth error:', error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to authenticate with GitHub',
-    });
+    return sendRedirect(event, '/build?auth_error=github');
   }
 });

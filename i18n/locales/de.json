@@ -88,5 +88,8 @@
   "remove_keystore": "Keystore entfernen",
   "confirm_remove": "Keystore entfernen?",
   "yes": "Ja",
-  "no": "Nein"
+  "no": "Nein",
+  "github_login_failed": "Die GitHub-Anmeldung hat nicht funktioniert (der Link ist evtl. abgelaufen). Bitte versuche es erneut.",
+  "github_session_expired": "Deine GitHub-Sitzung ist abgelaufen. Bitte gehe zum ersten Schritt zurück und verbinde dich erneut mit GitHub.",
+  "github_rate_limit": "GitHub begrenzt gerade unsere Anfragen. Bitte warte ein paar Minuten und versuche es erneut."
 }

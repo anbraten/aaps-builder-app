@@ -88,7 +88,20 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
     },
   ];
 
+  /** Call with any error of a request, returns true if the GitHub session is not valid (anymore). */
+  async function handleGithubAuthError(error: unknown) {
+    const code = (error as any)?.statusCode ?? (error as any)?.status;
+    if (code !== 401) {
+      return false;
+    }
+
+    // the server already dropped the invalid cookie
+    await refreshStatus();
+    return true;
+  }
+
   return {
+    handleGithubAuthError,
     steps,
     status,
     refreshStatus,

@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
 
   // we only return if the token is present (NOT the actual value!)
   return {
-    githubToken: !!cookies.github_token,
+    githubToken: !!cookies.github_token && cookies.github_token !== 'undefined',
     dropboxToken: !!cookies.dropbox_token,
     googleToken: !!cookies.google_token,
   };

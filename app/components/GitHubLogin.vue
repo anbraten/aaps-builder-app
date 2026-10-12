@@ -2,6 +2,10 @@
   <div>
     <p class="text-gray-600 mb-4">{{ $t('first_lets_connect_your_github') }}</p>
 
+    <p v-if="!store.status?.githubToken && authError" class="mb-4 p-3 rounded-lg bg-orange-100 text-orange-700">
+      {{ $t('github_login_failed') }}
+    </p>
+
     <a
       v-if="!store.status?.githubToken"
       :href="loginUrl"
@@ -32,6 +36,8 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const store = useBuilderStore();
+const route = useRoute();
+const authError = computed(() => route.query.auth_error === 'github');
 
 defineEmits<{
   (event: 'continue'): void;

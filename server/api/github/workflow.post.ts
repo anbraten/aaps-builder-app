@@ -1,9 +1,6 @@
-import { Octokit } from '@octokit/rest';
-import { RequestError } from '@octokit/request-error';
-
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
-  const githubToken = cookies.github_token;
+  const octokit = useGithub(event);
   const { repoFullName, keyStore, cloudStorage, flavor } = await readBody<{
     repoFullName: string;
     keyStore: {
@@ -16,15 +13,7 @@ export default defineEventHandler(async (event) => {
     flavor: 'app' | 'wear';
   }>(event);
 
-  if (!githubToken) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Not authenticated',
-    });
-  }
-
   try {
-    const octokit = new Octokit({ auth: githubToken });
     const [owner, repo] = repoFullName.split('/');
 
     const workflows = await octokit.actions.listRepoWorkflows({
@@ -107,32 +96,6 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, workflowRunId: inProgressRuns[0].id };
   } catch (error) {
-    if (error instanceof RequestError) {
-      console.error('Error from GitHub API:', error.name, error.message, {
-        status: error.status,
-        cause: error.cause,
-        response: JSON.stringify(error.response?.data),
-      });
-
-      throw createError({
-        statusCode: error.status,
-        statusMessage: error.message,
-      });
-    }
-
-    const isNuxtError = (error: any) => {
-      return error && typeof error === 'object' && 'statusCode' in error && 'statusMessage' in error;
-    };
-
-    if (isNuxtError(error)) {
-      throw error;
-    }
-
-    console.error('Unexpected error:', error);
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to trigger workflow',
-    });
+    handleGithubError(event, error, 'Failed to trigger workflow');
   }
 });

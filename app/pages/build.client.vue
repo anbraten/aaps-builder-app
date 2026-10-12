@@ -69,6 +69,16 @@ await store.refreshStatus();
 
 const currentStepId = ref(store.steps.findIndex((step) => step.isDone === false));
 
+// the GitHub session got lost (expired / revoked), send the user back to the login step
+watch(
+  () => store.status?.githubToken,
+  (hasToken) => {
+    if (hasToken === false) {
+      currentStepId.value = 0;
+    }
+  },
+);
+
 const currentStep = computed(() => store.steps[currentStepId.value]);
 
 function nextStep() {

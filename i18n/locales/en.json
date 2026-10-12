@@ -88,5 +88,8 @@
   "remove_keystore": "Remove keystore",
   "confirm_remove": "Remove keystore?",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "github_login_failed": "The GitHub login did not work (the login link may have expired). Please try connecting again.",
+  "github_session_expired": "Your GitHub session expired. Please go back to the first step and connect with GitHub again.",
+  "github_rate_limit": "GitHub is limiting our requests right now. Please wait a few minutes and try again."
 }

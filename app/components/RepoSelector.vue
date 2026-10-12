@@ -99,6 +99,9 @@ async function fetchRepos() {
   try {
     repos.value = await $fetch('/api/github/repos');
   } catch (error) {
+    if (await store.handleGithubAuthError(error)) {
+      return;
+    }
     console.error('Error fetching repos:', error);
   } finally {
     loading.value = false;
