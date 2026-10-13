@@ -91,5 +91,21 @@
   "no": "Nein",
   "github_login_failed": "Die GitHub-Anmeldung hat nicht funktioniert (der Link ist evtl. abgelaufen). Bitte versuche es erneut.",
   "github_session_expired": "Deine GitHub-Sitzung ist abgelaufen. Bitte gehe zum ersten Schritt zurück und verbinde dich erneut mit GitHub.",
-  "github_rate_limit": "GitHub begrenzt gerade unsere Anfragen. Bitte warte ein paar Minuten und versuche es erneut."
+  "github_rate_limit": "GitHub begrenzt gerade unsere Anfragen. Bitte warte ein paar Minuten und versuche es erneut.",
+  "built_with": "Gebaut mit",
+  "toggle_theme": "Dunkelmodus umschalten",
+  "aaps_version": "AndroidAPS-Version",
+  "aaps_version_hint": "Branch, Tag oder Commit von nightscout/AndroidAPS. Leer lassen für master.",
+  "feature_flags": "Feature-Flags",
+  "enable": "Aktivieren",
+  "enabled": "Aktiviert",
+  "disable": "Deaktivieren",
+  "feature_aaps_version": "AndroidAPS-Version wählen",
+  "view_on_github": "Auf GitHub ansehen",
+  "workflow_is_running": "Juhu 🎉, der Workflow wurde gestartet und die App wird jetzt gebaut. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit in deinem {0} nachsehen, ob die App schon da ist.",
+  "no_running_workflow_found": "Seltsam, wir haben den Workflow gestartet, aber er scheint weder in der Warteschlange zu sein noch zu laufen. Bitte prüfe {0}, ob GitHub Actions für deinen Fork aktiviert sind.",
+  "no_running_workflow_found_retry": "Falls du sie bereits aktiviert hast, versuche es bitte erneut oder frage eine erfahrene Person um Hilfe.",
+  "workflow_execution_failed": "Der Workflow ist fehlgeschlagen. Bitte prüfe die Logs auf GitHub für mehr Details oder frage eine erfahrene Person um Hilfe.",
+  "reload_version": "Version laden",
+  "version_not_found": "Für diesen Branch, Tag oder Commit wurde keine Version gefunden."
 }

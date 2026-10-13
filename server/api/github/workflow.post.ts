@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
   const octokit = useGithub(event);
-  const { repoFullName, keyStore, cloudStorage, flavor } = await readBody<{
+  const { repoFullName, keyStore, cloudStorage, flavor, aapsRef } = await readBody<{
     repoFullName: string;
     keyStore: {
       content: string;
@@ -11,7 +11,13 @@ export default defineEventHandler(async (event) => {
     };
     cloudStorage: 'google-drive' | 'dropbox' | 'github-artifact';
     flavor: 'app' | 'wear';
+    aapsRef?: string;
   }>(event);
+
+  const ref = aapsRef?.trim() || 'master';
+  if (!/^[\w./-]{1,100}$/.test(ref)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid AndroidAPS version' });
+  }
 
   try {
     const [owner, repo] = repoFullName.split('/');
@@ -49,7 +55,7 @@ export default defineEventHandler(async (event) => {
       ref: 'main',
       inputs: {
         repo: 'nightscout/AndroidAPS',
-        ref: 'master',
+        ref,
         keyStoreContent: keyStore.content,
         keyStorePassword: keyStore.password,
         keyAlias: keyStore.keyAlias,

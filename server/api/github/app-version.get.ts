@@ -1,12 +1,17 @@
 export default defineEventHandler(async (event) => {
   const octokit = useGithub(event);
 
+  const ref = String(getQuery(event).ref || '').trim() || 'master';
+  if (!/^[\w./-]{1,100}$/.test(ref)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid AndroidAPS version' });
+  }
+
   try {
     const { data } = await octokit.repos.getContent({
       path: 'buildSrc/src/main/kotlin/Versions.kt',
       owner: 'nightscout',
       repo: 'AndroidAPS',
-      ref: 'master',
+      ref,
     });
 
     if (Array.isArray(data) || data.type !== 'file') {

@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-primary-50: var(--color-fuchsia-50);
+  --color-primary-100: var(--color-fuchsia-100);
+  --color-primary-200: var(--color-fuchsia-200);
+  --color-primary-300: var(--color-fuchsia-300);
+  --color-primary-400: var(--color-fuchsia-400);
+  --color-primary-500: var(--color-fuchsia-500);
+  --color-primary-600: var(--color-fuchsia-600);
+  --color-primary-700: var(--color-fuchsia-700);
+  --color-primary-800: var(--color-fuchsia-800);
+  --color-primary-900: var(--color-fuchsia-900);
+  --color-primary-950: var(--color-fuchsia-950);
+}
+
+/* v3 compat: v4 defaults borders to currentColor and buttons to cursor: default */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
+    @apply bg-stone-100 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+  }
+
+  body {
+    background-image:
+      radial-gradient(40rem 24rem at 0% 0%, --alpha(var(--color-pink-200) / 35%), transparent 70%),
+      radial-gradient(36rem 22rem at 100% 0%, --alpha(var(--color-violet-200) / 35%), transparent 70%);
+    background-repeat: no-repeat;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(40rem 24rem at 0% 0%, --alpha(var(--color-pink-500) / 7%), transparent 70%),
+      radial-gradient(36rem 22rem at 100% 0%, --alpha(var(--color-violet-500) / 7%), transparent 70%);
+  }
+
+  a {
+    @apply underline-offset-2;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl bg-white p-5 shadow-lg shadow-primary-900/5 ring-1 ring-stone-900/5 dark:bg-stone-900 dark:shadow-none dark:ring-white/10 sm:p-6;
+  }
+
+  .text-muted {
+    @apply text-stone-600 dark:text-stone-400;
+  }
+
+  .link {
+    @apply font-semibold text-primary-600 underline decoration-primary-300 decoration-2 hover:text-primary-700 dark:text-primary-300 dark:decoration-primary-700 dark:hover:text-primary-200;
+  }
+
+  /* Buttons: min 48px high for comfortable tapping */
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-bold transition focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 dark:focus-visible:ring-offset-stone-900;
+  }
+  .btn-primary {
+    @apply bg-primary-600 text-white shadow-md shadow-primary-500/30 hover:bg-primary-700 dark:shadow-none;
+  }
+  .btn-success {
+    @apply bg-emerald-500 text-white shadow-md shadow-emerald-500/30 hover:bg-emerald-600 dark:shadow-none;
+  }
+  .btn-danger {
+    @apply bg-rose-500 text-white shadow-md shadow-rose-500/30 hover:bg-rose-600 dark:shadow-none;
+  }
+  .btn-dark {
+    @apply bg-stone-900 text-white hover:bg-stone-800 active:bg-stone-700 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200;
+  }
+  .btn-secondary {
+    @apply bg-white text-stone-700 ring-1 ring-inset ring-stone-300 hover:bg-primary-50 hover:ring-primary-300 dark:bg-stone-800 dark:text-stone-200 dark:ring-stone-700 dark:hover:bg-stone-700;
+  }
+  .btn-ghost {
+    @apply text-stone-600 hover:bg-primary-100/60 active:bg-primary-100 dark:text-stone-300 dark:hover:bg-stone-800;
+  }
+  .btn-icon {
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-stone-500 transition hover:bg-primary-100/70 hover:text-primary-600 active:scale-95 dark:text-stone-400 dark:hover:bg-stone-700 dark:hover:text-stone-200;
+  }
+
+  /* Form fields: text-base (16px) prevents iOS from zooming in on focus */
+  .label {
+    @apply mb-1.5 block text-sm font-bold text-stone-700 dark:text-stone-300;
+  }
+  .input {
+    @apply block min-h-12 w-full rounded-2xl border-0 bg-white px-4 py-3 text-base text-stone-900 ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-primary-400 disabled:opacity-60 dark:bg-stone-800 dark:text-stone-100 dark:ring-stone-700;
+  }
+  .hint {
+    @apply mt-1.5 text-sm text-stone-500 dark:text-stone-400;
+  }
+
+  /* Selectable cards (radio-like) */
+  .choice {
+    @apply flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl bg-white px-4 py-3 text-left ring-1 ring-inset ring-stone-300 transition hover:ring-primary-300 dark:bg-stone-800 dark:ring-stone-700 dark:hover:ring-stone-500;
+  }
+  .choice-active {
+    @apply bg-primary-50 ring-2 ring-primary-500 hover:ring-primary-500 dark:bg-primary-500/10 dark:ring-primary-400;
+  }
+
+  /* Alerts */
+  .alert {
+    @apply rounded-2xl px-4 py-3 text-sm leading-relaxed ring-1 ring-inset;
+  }
+  .alert-info {
+    @apply bg-primary-50 text-primary-900 ring-primary-200 dark:bg-primary-500/10 dark:text-primary-100 dark:ring-primary-500/30;
+  }
+  .alert-warning {
+    @apply bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-100 dark:ring-amber-500/30;
+  }
+  .alert-error {
+    @apply bg-rose-50 text-rose-900 ring-rose-200 dark:bg-rose-500/10 dark:text-rose-100 dark:ring-rose-500/30;
+  }
+  .alert-success {
+    @apply bg-emerald-50 text-emerald-900 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-100 dark:ring-emerald-500/30;
+  }
+
+  .status-ok {
+    @apply flex items-center gap-3 rounded-2xl bg-emerald-50 px-4 py-3 font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/30;
+  }
+}

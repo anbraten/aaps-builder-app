@@ -1,78 +1,51 @@
 <template>
-  <div class="flex flex-col">
-    <i18n-t keypath="to_build_the_aaps_app" tag="p" class="text-gray-600">
-      <a :href="`https://github.com/${builderRepo}`" target="_blank" class="underline">{{ builderRepo }}</a>
+  <div class="space-y-4">
+    <i18n-t keypath="to_build_the_aaps_app" tag="p" class="text-muted leading-relaxed">
+      <a :href="`https://github.com/${builderRepo}`" target="_blank" class="link">{{ builderRepo }}</a>
     </i18n-t>
 
-    <button @click="checkForExistingFork" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg mx-auto">
-      {{ $t('check_for_existing_fork') }}
+    <button type="button" class="btn btn-secondary w-full" :disabled="loading" @click="checkForExistingFork">
+      <AppIcon v-if="loading" name="spinner" class="h-5 w-5" />
+      <AppIcon v-else name="fork" class="h-5 w-5" />
+      <span>{{ loading ? $t('loading_repositories') : $t('check_for_existing_fork') }}</span>
     </button>
 
-    <div v-if="loading" class="mt-2 text-gray-600 flex items-center justify-center">
-      <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        ></path>
-      </svg>
-      {{ $t('loading_repositories') }}
-    </div>
-
-    <div
-      v-if="!hasForkedRepo && checkedForForks"
-      class="p-3 rounded-lg bg-orange-100 text-orange-700 mt-4 flex flex-col"
-    >
+    <div v-if="!hasForkedRepo && checkedForForks" class="alert alert-warning space-y-3">
       <i18n-t keypath="could_not_find_a_fork" tag="p">
-        <span>{{ builderRepo }}</span>
+        <span class="font-semibold">{{ builderRepo }}</span>
       </i18n-t>
 
-      <a
-        :href="`https://github.com/${builderRepo}/fork`"
-        class="px-4 py-2 bg-green-600 text-white rounded-lg my-2 mx-auto"
-        target="_blank"
-        >{{ $t('fork_now') }}</a
-      >
+      <a :href="`https://github.com/${builderRepo}/fork`" class="btn btn-success w-full" target="_blank">
+        <AppIcon name="fork" class="h-5 w-5" />
+        {{ $t('fork_now') }}
+        <AppIcon name="external" class="h-4 w-4 opacity-80" />
+      </a>
 
       <p>{{ $t('or_select_it_from_the') }}</p>
     </div>
 
-    <template v-if="checkedForForks || store.selectedRepo">
-      <p class="text-gray-600 mt-4">{{ $t('select_the_forked_repository') }}</p>
+    <div v-if="checkedForForks || store.selectedRepo">
+      <label for="repo-select" class="label">{{ $t('select_the_forked_repository') }}</label>
       <div class="relative">
         <select
+          id="repo-select"
           :value="store.selectedRepo"
-          @change="handleRepoChange"
-          class="w-full p-2 border rounded-lg appearance-none bg-white pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="input appearance-none truncate pr-11"
+          :class="{ 'ring-2 ring-emerald-500 dark:ring-emerald-500': store.selectedRepo }"
           :disabled="loading"
+          @change="handleRepoChange"
         >
           <option value="">{{ $t('select_a_repository') }}</option>
-          <option
-            v-for="repo in [
-              ...repos,
-              {
-                full_name: store.selectedRepo,
-              },
-            ]"
-            :key="repo.full_name"
-            :value="repo.full_name"
-          >
+          <option v-for="repo in repoOptions" :key="repo.full_name" :value="repo.full_name">
             {{ repo.full_name }}
             {{ repo.full_name.endsWith(`/${builderRepoName}`) ? `(${$t('this_one_seems_to_be_it')})` : '' }}
           </option>
         </select>
-        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              fill-rule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clip-rule="evenodd"
-            />
-          </svg>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-stone-400">
+          <AppIcon name="chevron-down" class="h-5 w-5" />
         </div>
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -91,6 +64,14 @@ defineEmits<{
 const builderRepo = 'anbraten/aaps-builder';
 const builderRepoName = builderRepo.split('/')[1];
 const hasForkedRepo = computed(() => repos.value.some((r) => r.full_name.endsWith(`/${builderRepoName}`)));
+
+// keep the previously selected repo in the list, even before the repos are loaded
+const repoOptions = computed(() => {
+  if (!store.selectedRepo || repos.value.some((r) => r.full_name === store.selectedRepo)) {
+    return repos.value;
+  }
+  return [...repos.value, { full_name: store.selectedRepo }];
+});
 
 async function fetchRepos() {
   if (!store.status?.githubToken) return;
@@ -117,7 +98,6 @@ async function checkForExistingFork() {
 
 function handleRepoChange(event: Event) {
   const target = event.target as HTMLSelectElement;
-  console.log('change', target.value);
   const repo = repos.value.find((r) => r.full_name === target.value);
   store.selectedRepo = repo?.full_name || '';
 }

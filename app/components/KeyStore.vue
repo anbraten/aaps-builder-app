@@ -1,126 +1,200 @@
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-4">
+    <input ref="fileInput" type="file" accept=".jks,.keystore,.p12,.pfx" class="hidden" @change="onFile" />
+
+    <!-- File row: shown once a keystore is loaded -->
+    <div
+      v-if="phase === 'loaded' || phase === 'done'"
+      class="flex items-center gap-3 rounded-2xl bg-stone-50 py-1.5 pl-4 pr-1.5 ring-1 ring-inset ring-stone-200 dark:bg-stone-800 dark:ring-stone-700"
+    >
+      <AppIcon name="key" class="h-5 w-5 shrink-0 text-stone-400" />
+      <span class="flex-1 truncate font-medium">{{ fileName }}</span>
+      <button
+        type="button"
+        class="btn-icon"
+        :title="$t('download_keystore')"
+        :aria-label="$t('download_keystore')"
+        @click="doDownload"
+      >
+        <AppIcon name="download" class="h-5 w-5" />
+      </button>
+      <button
+        type="button"
+        class="btn-icon hover:text-red-600 dark:hover:text-red-400"
+        :title="$t('remove_keystore')"
+        :aria-label="$t('remove_keystore')"
+        @click="remove"
+      >
+        <AppIcon name="trash" class="h-5 w-5" />
+      </button>
+    </div>
 
     <!-- ── DONE ── -->
-    <template v-if="phase === 'done'">
-      <!-- File row: name + download + remove -->
-      <div class="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
-        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span class="flex-1 truncate text-gray-700">{{ fileName }}</span>
-        <button class="text-gray-400 hover:text-blue-600" :title="$t('download_keystore')" @click="doDownload">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </button>
-        <button class="text-gray-400 hover:text-red-500" :title="$t('remove_keystore')" @click="remove">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-      <div class="flex items-center justify-center gap-2 text-green-600">
-        <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-        </svg>
-        <span class="font-medium">{{ $t('keystore_configured') }}</span>
-      </div>
-    </template>
+    <div v-if="phase === 'done'" class="status-ok">
+      <AppIcon name="check-circle" class="h-6 w-6 shrink-0" />
+      <span>{{ $t('keystore_configured') }}</span>
+    </div>
 
     <!-- ── PICK ── nothing loaded yet, just two entry points -->
     <template v-else-if="phase === 'pick'">
-      <p class="text-gray-600">{{ $t('a_key_store_is_required') }}</p>
-      <button class="px-4 py-2 bg-blue-600 text-white rounded-lg w-full" @click="fileInput?.click()">
+      <p class="text-muted">{{ $t('a_key_store_is_required') }}</p>
+      <button type="button" class="btn btn-primary w-full" @click="fileInput?.click()">
+        <AppIcon name="upload" class="h-5 w-5" />
         {{ $t('upload_keystore') }}
       </button>
-      <input ref="fileInput" type="file" accept=".jks,.keystore,.p12,.pfx" class="hidden" @change="onFile" />
-      <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg w-full hover:border-blue-400 hover:text-blue-600" @click="phase = 'create'">
+      <button type="button" class="btn btn-secondary w-full" @click="phase = 'create'">
+        <AppIcon name="plus" class="h-5 w-5" />
         {{ $t('create_keystore') }}
       </button>
     </template>
 
     <!-- ── CREATE ── form to generate a new keystore -->
-    <template v-else-if="phase === 'create'">
-      <p class="text-sm text-gray-500">{{ $t('create_keystore_description') }}</p>
+    <form
+      v-else-if="phase === 'create'"
+      class="flex flex-col gap-4"
+      @submit.prevent="canCreate && !creating && doCreate()"
+    >
+      <p class="alert alert-info">{{ $t('create_keystore_description') }}</p>
 
-      <input v-model="createForm.password" type="password" :placeholder="$t('keystore_password')" class="border border-gray-400 rounded-md px-2 py-1" />
-      <input v-model="createForm.keyAlias" type="text" :placeholder="$t('key_alias')" class="mt-1 border border-gray-400 rounded-md px-2 py-1" />
-      <input v-model="createForm.keyPassword" type="password" :placeholder="$t('key_password')" class="border border-gray-400 rounded-md px-2 py-1" />
+      <div>
+        <label for="create-password" class="label">{{ $t('keystore_password') }}</label>
+        <input
+          id="create-password"
+          v-model="createForm.password"
+          type="password"
+          autocomplete="new-password"
+          minlength="6"
+          class="input"
+        />
+      </div>
+      <div>
+        <label for="create-alias" class="label">{{ $t('key_alias') }}</label>
+        <input
+          id="create-alias"
+          v-model="createForm.keyAlias"
+          type="text"
+          autocapitalize="off"
+          autocomplete="off"
+          class="input"
+        />
+      </div>
+      <div>
+        <label for="create-key-password" class="label">{{ $t('key_password') }}</label>
+        <input
+          id="create-key-password"
+          v-model="createForm.keyPassword"
+          type="password"
+          autocomplete="new-password"
+          minlength="6"
+          class="input"
+        />
+      </div>
 
-      <details class="text-sm">
-        <summary class="cursor-pointer text-gray-500 hover:text-gray-700 select-none">{{ $t('advanced_options') }}</summary>
-        <div class="flex flex-col gap-2 mt-2">
-          <input v-model="createForm.commonName" type="text" :placeholder="$t('common_name')" class="border border-gray-400 rounded-md px-2 py-1" />
-          <input v-model="createForm.organization" type="text" :placeholder="$t('organization')" class="border border-gray-400 rounded-md px-2 py-1" />
-          <input v-model="createForm.country" type="text" maxlength="2" :placeholder="$t('country_code')" class="border border-gray-400 rounded-md px-2 py-1" />
+      <details class="group rounded-2xl ring-1 ring-inset ring-stone-200 dark:ring-stone-700">
+        <summary
+          class="flex min-h-12 cursor-pointer select-none list-none items-center justify-between px-4 font-medium text-stone-600 dark:text-stone-300 [&::-webkit-details-marker]:hidden"
+        >
+          {{ $t('advanced_options') }}
+          <AppIcon name="chevron-down" class="h-5 w-5 transition-transform group-open:rotate-180" />
+        </summary>
+        <div class="flex flex-col gap-4 px-4 pb-4">
+          <div>
+            <label for="create-cn" class="label">{{ $t('common_name') }}</label>
+            <input id="create-cn" v-model="createForm.commonName" type="text" autocomplete="name" class="input" />
+          </div>
+          <div>
+            <label for="create-org" class="label">{{ $t('organization') }}</label>
+            <input
+              id="create-org"
+              v-model="createForm.organization"
+              type="text"
+              autocomplete="organization"
+              class="input"
+            />
+          </div>
+          <div>
+            <label for="create-country" class="label">{{ $t('country_code') }}</label>
+            <input
+              id="create-country"
+              v-model="createForm.country"
+              type="text"
+              maxlength="2"
+              autocapitalize="characters"
+              autocomplete="country"
+              class="input uppercase"
+            />
+          </div>
         </div>
       </details>
 
-      <p v-if="createError" class="text-red-600 text-sm">{{ createError }}</p>
+      <p v-if="createError" class="alert alert-error">{{ createError }}</p>
 
-      <button :disabled="!canCreate || creating" class="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed w-full" @click="doCreate">
+      <button type="submit" :disabled="!canCreate || creating" class="btn btn-primary w-full">
+        <AppIcon v-if="creating" name="spinner" class="h-5 w-5" />
+        <AppIcon v-else name="download" class="h-5 w-5" />
         {{ creating ? $t('creating_keystore') + '…' : $t('create_and_download_keystore') }}
       </button>
-    </template>
+      <button type="button" class="btn btn-ghost w-full" @click="fileInput?.click()">
+        <AppIcon name="upload" class="h-5 w-5" />
+        {{ $t('upload_keystore') }}
+      </button>
+    </form>
 
     <!-- ── LOADED ── keystore present, fill credentials & verify -->
-    <template v-else-if="phase === 'loaded'">
-      <!-- File row: name + download + remove -->
-      <div class="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
-        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span class="flex-1 truncate text-gray-700">{{ fileName }}</span>
-        <button class="text-gray-400 hover:text-blue-600" :title="$t('download_keystore')" @click="doDownload">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </button>
-        <button class="text-gray-400 hover:text-red-500" :title="$t('remove_keystore')" @click="remove">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-    </div>
-
-      <input
-        v-model="store.keyStore.password"
-        type="password"
-        :placeholder="$t('keystore_password')"
-        class="border border-gray-400 rounded-md px-2 py-1"
-        @input="resetVerify"
-      />
-      <input
-        v-model="store.keyStore.keyAlias"
-        type="text"
-        :placeholder="$t('key_alias')"
-        class="border border-gray-400 rounded-md px-2 py-1"
-        @input="resetVerify"
-      />
-      <input
-        v-model="store.keyStore.keyPassword"
-        type="password"
-        :placeholder="$t('key_password')"
-        class="border border-gray-400 rounded-md px-2 py-1"
-        @input="resetVerify"
-      />
-
-      <!-- Inline feedback -->
-      <div v-if="verifyError" class="rounded-md px-3 py-2 text-sm bg-red-50 text-red-800 border border-red-300">
-        {{ verifyError }}
-        <span v-if="verifyAliasHint" class="block mt-1 text-xs">{{ $t('detected_aliases') }}: {{ verifyAliasHint }}</span>
+    <form
+      v-else-if="phase === 'loaded'"
+      class="flex flex-col gap-4"
+      @submit.prevent="store.keyStore.password && !verifying && runVerify()"
+    >
+      <div>
+        <label for="ks-password" class="label">{{ $t('keystore_password') }}</label>
+        <input
+          id="ks-password"
+          v-model="store.keyStore.password"
+          type="password"
+          autocomplete="off"
+          class="input"
+          @input="resetVerify"
+        />
+      </div>
+      <div>
+        <label for="ks-alias" class="label">{{ $t('key_alias') }}</label>
+        <input
+          id="ks-alias"
+          v-model="store.keyStore.keyAlias"
+          type="text"
+          autocapitalize="off"
+          autocomplete="off"
+          class="input"
+          @input="resetVerify"
+        />
+      </div>
+      <div>
+        <label for="ks-key-password" class="label">{{ $t('key_password') }}</label>
+        <input
+          id="ks-key-password"
+          v-model="store.keyStore.keyPassword"
+          type="password"
+          autocomplete="off"
+          class="input"
+          @input="resetVerify"
+        />
       </div>
 
-      <button
-        :disabled="!store.keyStore.password || verifying"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed w-full"
-        @click="runVerify"
-      >
+      <!-- Inline feedback -->
+      <div v-if="verifyError" class="alert alert-error">
+        {{ verifyError }}
+        <span v-if="verifyAliasHint" class="mt-1 block text-xs"
+          >{{ $t('detected_aliases') }}: {{ verifyAliasHint }}</span
+        >
+      </div>
+
+      <button type="submit" :disabled="!store.keyStore.password || verifying" class="btn btn-primary w-full">
+        <AppIcon v-if="verifying" name="spinner" class="h-5 w-5" />
+        <AppIcon v-else name="check-circle" class="h-5 w-5" />
         {{ verifying ? $t('verifying') + '…' : $t('verify_keystore') }}
       </button>
-    </template>
-
+    </form>
   </div>
 </template>
 
@@ -136,14 +210,9 @@ const store = useBuilderStore();
 type Phase = 'pick' | 'create' | 'loaded' | 'done';
 
 const allFieldsFilled = () =>
-  !!store.keyStore.content &&
-  !!store.keyStore.password &&
-  !!store.keyStore.keyAlias &&
-  !!store.keyStore.keyPassword;
+  !!store.keyStore.content && !!store.keyStore.password && !!store.keyStore.keyAlias && !!store.keyStore.keyPassword;
 
-const phase = ref<Phase>(
-  allFieldsFilled() ? 'done' : store.keyStore.content ? 'loaded' : 'pick',
-);
+const phase = ref<Phase>(allFieldsFilled() ? 'done' : store.keyStore.content ? 'loaded' : 'pick');
 
 // ── Upload ────────────────────────────────────────────────────────────────────
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -226,10 +295,7 @@ const createForm = reactive({
 });
 
 const canCreate = computed(
-  () =>
-    createForm.password.length >= 6 &&
-    createForm.keyAlias.trim().length > 0 &&
-    createForm.keyPassword.length >= 6
+  () => createForm.password.length >= 6 && createForm.keyAlias.trim().length > 0 && createForm.keyPassword.length >= 6,
 );
 
 const creating = ref(false);
@@ -266,7 +332,7 @@ async function doCreate() {
 
 function remove() {
   if (!confirm(t('confirm_remove'))) {
-    return
+    return;
   }
 
   store.keyStore.content = '';

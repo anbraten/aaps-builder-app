@@ -1,68 +1,75 @@
 <template>
-  <div>
-    <!-- Progress bar -->
-    <div class="mb-8">
-      <div class="flex justify-between gap-2 mb-2">
-        <div
-          v-for="(step, i) in store.steps"
-          :key="i"
-          :style="{
-            width: `${100 / store.steps.length}%`,
-          }"
-          class="flex justify-center"
-        >
+  <div class="space-y-4">
+    <!-- Stepper -->
+    <nav :aria-label="$t('build')">
+      <ol class="flex items-start">
+        <li v-for="(step, i) in store.steps" :key="i" class="relative flex flex-1 flex-col items-center">
+          <!-- connector line to the previous step -->
+          <div
+            v-if="i > 0"
+            class="absolute right-1/2 top-5 h-0.5 w-full -translate-y-1/2"
+            :class="i <= currentStepId ? 'bg-primary-600' : 'bg-stone-300 dark:bg-stone-700'"
+            aria-hidden="true"
+          />
           <button
-            class="text-sm font-medium flex flex-col items-center"
-            :class="currentStepId >= i ? 'text-blue-600' : 'text-gray-500'"
+            type="button"
+            class="relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ring-4 ring-stone-100 transition-colors dark:ring-stone-950"
+            :class="stepClass(step, i)"
+            :aria-current="i === currentStepId ? 'step' : undefined"
+            :aria-label="`${i + 1}. ${step.name}`"
             @click="currentStepId = i"
           >
-            <span>{{ i + 1 }}.</span>
-            <span class="my-auto">{{ step.name }}</span>
-            <div v-if="step.isDone" class="text-green-600 ml-1">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
+            <AppIcon v-if="step.isDone && i !== currentStepId" name="check" class="h-5 w-5" />
+            <span v-else>{{ i + 1 }}</span>
           </button>
-        </div>
-      </div>
-      <div class="h-2 bg-gray-300 rounded-full">
-        <div
-          class="h-2 bg-blue-600 rounded-full transition-all duration-500"
-          :style="{ width: `${Math.min((currentStepId + 0.5) * (100 / store.steps.length), 100)}%` }"
-        ></div>
-      </div>
-    </div>
+          <span
+            class="mt-1.5 hidden px-1 text-center text-xs font-medium leading-tight sm:block"
+            :class="i === currentStepId ? 'text-primary-600 dark:text-primary-400' : 'text-stone-500'"
+          >
+            {{ step.name }}
+          </span>
+        </li>
+      </ol>
+    </nav>
 
     <!-- Main content -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <TransitionGroup name="fade" mode="out-in">
-        <div v-if="currentStep" class="space-y-4">
-          <h2 class="text-xl font-semibold">{{ currentStep.title }}</h2>
-          <component :is="currentStep.component" @continue="nextStep" />
+    <Transition name="fade" mode="out-in">
+      <section v-if="currentStep" :key="currentStepId" class="card">
+        <p class="text-sm font-semibold text-primary-600 dark:text-primary-400">
+          {{ currentStepId + 1 }} / {{ store.steps.length }} · {{ currentStep.name }}
+        </p>
+        <h2 class="mb-4 mt-1 text-xl font-bold tracking-tight">{{ currentStep.title }}</h2>
+        <component :is="currentStep.component" @continue="nextStep" />
+      </section>
+    </Transition>
 
-          <div class="flex w-full justify-between gap-2">
-            <button @click="prevStep" class="mt-4 text-sm text-gray-600 hover:text-gray-800">← {{ $t('back') }}</button>
-            <button
-              v-if="currentStep.isDone"
-              @click="nextStep"
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mt-4"
-            >
-              {{ $t('continue') }} →
-            </button>
-          </div>
-        </div>
-      </TransitionGroup>
+    <!-- Bottom navigation, sticks to the bottom of the screen within thumb reach -->
+    <div
+      class="sticky bottom-0 z-20 -mx-4 bg-linear-to-t from-stone-100 from-60% px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6 dark:from-stone-950"
+    >
+      <div class="flex gap-3">
+        <button type="button" class="btn btn-secondary px-4" @click="prevStep">
+          <AppIcon name="chevron-left" class="h-5 w-5" />
+          <span>{{ $t('back') }}</span>
+        </button>
+        <button
+          v-if="!isLastStep"
+          type="button"
+          class="btn btn-primary flex-1"
+          :disabled="!currentStep?.isDone"
+          @click="nextStep"
+        >
+          <span>{{ $t('continue') }}</span>
+          <AppIcon name="chevron-right" class="h-5 w-5" />
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 const store = useBuilderStore();
+const router = useRouter();
 
 // wait for the store to be initialized
 await store.refreshStatus();
@@ -80,17 +87,35 @@ watch(
 );
 
 const currentStep = computed(() => store.steps[currentStepId.value]);
+const isLastStep = computed(() => currentStepId.value === store.steps.length - 1);
+
+function stepClass(step: { isDone: boolean }, i: number) {
+  if (i === currentStepId.value) {
+    return 'bg-primary-600 text-white shadow-md shadow-primary-500/30';
+  }
+  if (step.isDone) {
+    return 'bg-emerald-600 text-white';
+  }
+  return 'bg-white text-stone-500 ring-1 ring-inset ring-stone-300 dark:bg-stone-800 dark:text-stone-400';
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 function nextStep() {
   if (currentStepId.value < store.steps.length - 1) {
-    // currentStepId.value = store.steps.findIndex((step) => step.isDone === false);
     currentStepId.value++;
+    scrollToTop();
   }
 }
 
 function prevStep() {
   if (currentStepId.value > 0) {
     currentStepId.value--;
+    scrollToTop();
+  } else {
+    router.push('/');
   }
 }
 </script>
@@ -98,10 +123,16 @@ function prevStep() {
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
-.fade-enter-from,
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 .fade-leave-to {
   opacity: 0;
 }

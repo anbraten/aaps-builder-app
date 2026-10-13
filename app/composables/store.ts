@@ -9,6 +9,8 @@ import WorkflowTrigger from '~/components/WorkflowTrigger.vue';
 
 const prefix = 'aaps_builder.';
 
+export type FeatureFlag = 'aaps_version';
+
 type Step = {
   name: string;
   title?: string;
@@ -24,6 +26,13 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
   });
 
   const selectedRepo = useLocalStorage(`${prefix}selected_repo`, '');
+
+  const featureFlags = useLocalStorage<Record<FeatureFlag, boolean>>(`${prefix}feature_flags`, {
+    aaps_version: false,
+  });
+
+  /** Git ref (branch, tag or sha) of AndroidAPS to build, only used if the `aaps_version` flag is enabled. */
+  const aapsRef = useLocalStorage(`${prefix}aaps_ref`, '');
 
   const keyStore = useLocalStorage(`${prefix}key_store`, {
     content: '',
@@ -107,6 +116,8 @@ export const useBuilderStore = defineStore('aaps_builder', () => {
     refreshStatus,
     selectedRepo,
     selectedCloudStorage,
+    featureFlags,
+    aapsRef,
     keyStore,
   };
 });
