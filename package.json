@@ -8,6 +8,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@fontsource-variable/nunito": "^5.3.0",
     "@octokit/request-error": "^7.1.2",
     "@octokit/rest": "^22.0.1",
     "@pinia/nuxt": "^1.0.2",
