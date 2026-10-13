@@ -29,6 +29,15 @@ export default defineNitroPlugin((nitroApp) => {
     // Set sampling rate for profiling - this is relative to tracesSampleRate
     profilesSampleRate: 0.2,
     attachStacktrace: true,
+    beforeSend(sentryEvent, hint) {
+      // Do not report 404s (e.g. bots probing robots.txt), however they were captured
+      const original = hint?.originalException as { statusCode?: number; message?: string } | undefined;
+      const message = original?.message ?? sentryEvent.exception?.values?.[0]?.value ?? '';
+      if (original?.statusCode === 404 || message.startsWith('Page not found:')) {
+        return null;
+      }
+      return sentryEvent;
+    },
   });
 
   nitroApp.hooks.hook('error', (error) => {
