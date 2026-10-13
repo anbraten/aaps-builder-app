@@ -1,8 +1,13 @@
 import type { OAuthTokenResponse } from '~/server/types';
 
 export default defineEventHandler(async (event) => {
-  const { code } = getQuery(event);
+  const { code, error: oauthError } = getQuery(event);
   const config = useRuntimeConfig();
+
+  // user cancelled the consent screen or the request is malformed => nothing to exchange
+  if (oauthError || !code) {
+    return sendRedirect(event, '/build');
+  }
 
   try {
     const tokenResponse = await $fetch<OAuthTokenResponse>('https://oauth2.googleapis.com/token', {
