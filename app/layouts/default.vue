@@ -46,9 +46,15 @@
     </main>
 
     <footer class="px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6 text-center text-sm text-stone-500">
-      <NuxtLink to="/features" class="inline-flex min-h-11 items-center gap-1 rounded-full px-3">
-        {{ $t('built_with') }} <span aria-hidden="true">❤️</span>
-        <code class="text-xs">{{ shortSha }}</code>
+      <NuxtLink to="/features" class="group inline-flex min-h-11 items-baseline gap-1.5 rounded-full px-3 py-3">
+        <span>{{ $t('built_with') }}</span>
+        <AppIcon
+          name="heart"
+          class="h-4 w-4 self-center text-primary-500 transition-transform group-hover:scale-125 dark:text-primary-400"
+        />
+        <span>{{ $t('built_for') }}</span>
+        <span aria-hidden="true" class="text-stone-300 dark:text-stone-700">·</span>
+        <code class="text-xs text-stone-400">{{ shortSha }}</code>
       </NuxtLink>
     </footer>
   </div>
