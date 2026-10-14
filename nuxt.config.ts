@@ -21,9 +21,7 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#1c1917', media: '(prefers-color-scheme: dark)' },
         { name: 'color-scheme', content: 'light dark' },
       ],
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      ],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
       script: [
         {
           // apply theme before first paint to avoid a flash
@@ -77,7 +75,7 @@ export default defineNuxtConfig({
     plugins: [
       tailwindcss(),
       sentryVitePlugin({
-        url: 'https://bugslide.vercel.app',
+        url: 'https://bugslide.tiny.ju60.de',
         org: process.env.SENTRY_ORG ?? 'ignored',
         project: process.env.SENTRY_PROJECT ?? 'ignored',
         authToken: process.env.SENTRY_AUTH_TOKEN,
