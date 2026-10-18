@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 
-const release = process.env.VERCEL_GIT_COMMIT_SHA ?? 'dev';
+const release = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'dev';
 const environment = process.env.VERCEL_ENV ?? 'development';
 
 export default defineNuxtConfig({

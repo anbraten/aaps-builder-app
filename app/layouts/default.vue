@@ -62,7 +62,7 @@
 
 <script setup>
 const { setLocale, locale, locales } = useI18n();
-const shortSha = String(useRuntimeConfig().public.sentry.release).slice(0, 7);
+const shortSha = String(useRuntimeConfig().public.sentry.release);
 
 // initial theme class is set by an inline script in nuxt.config.ts
 const isDark = ref(import.meta.client && document.documentElement.classList.contains('dark'));
