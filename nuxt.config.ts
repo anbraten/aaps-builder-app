@@ -49,7 +49,7 @@ export default defineNuxtConfig({
       googleClientId: process.env.GOOGLE_CLIENT_ID,
       dropboxClientId: process.env.DROPBOX_CLIENT_ID,
       sentry: {
-        dsn: 'https://89bYrjUVCORXM7a55TCqUHbJkCVFOiwX@bugslide.vercel.app/6',
+        dsn: 'https://89bYrjUVCORXM7a55TCqUHbJkCVFOiwX@bugslide.tiny.ju60.de/6',
         environment,
         release,
       },
