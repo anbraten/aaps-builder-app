@@ -32,7 +32,10 @@
     <!-- ── DONE ── -->
     <div v-if="phase === 'done'" class="status-ok">
       <AppIcon name="check-circle" class="h-6 w-6 shrink-0" />
-      <span>{{ $t('keystore_configured') }}</span>
+      <span class="flex-1">{{ $t('keystore_configured') }}</span>
+      <button type="button" class="btn btn-ghost" @click="phase = 'loaded'">
+        {{ $t('edit_credentials') }}
+      </button>
     </div>
 
     <!-- ── PICK ── nothing loaded yet, just two entry points -->
