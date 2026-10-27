@@ -119,14 +119,7 @@
 
         <img src="/sync-fork.png" alt="Update your fork" class="w-full rounded-xl ring-1 ring-red-200" />
       </template>
-      <template v-else-if="error?.includes('Workflow not found') || error?.includes('Repo or Workflow not found')">
-        <i18n-t keypath="is_your_fork_of_aaps_builder" tag="p">
-          <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="font-bold underline">{{
-            store.selectedRepo
-          }}</a>
-        </i18n-t>
-      </template>
-      <template v-else-if="error?.includes('actions disabled')">
+      <template v-else-if="error?.includes('GitHub Actions disabled')">
         <p>{{ $t('in_some_cases_github_requires') }}</p>
         <i18n-t keypath="check_for_the_enable_button" tag="p">
           <a
@@ -141,6 +134,13 @@
           alt="Enable workflow on GitHub Screenshot"
           class="w-full rounded-xl ring-1 ring-red-200"
         />
+      </template>
+      <template v-else-if="error?.includes('Repo or Workflow not found')">
+        <i18n-t keypath="is_your_fork_of_aaps_builder" tag="p">
+          <a :href="`https://github.com/${store.selectedRepo}`" target="_blank" class="font-bold underline">{{
+            store.selectedRepo
+          }}</a>
+        </i18n-t>
       </template>
       <template v-else-if="error?.includes('No queued or running workflow found')">
         <i18n-t keypath="no_running_workflow_found" tag="p">
@@ -374,7 +374,8 @@ async function startBuild() {
         return;
       }
       console.error('Error running build step:', e, JSON.stringify(e));
-      const eStr = (e as any)?.message || e;
+      // the server's message is only part of the response body (statusText is empty on http2)
+      const eStr = (e as any)?.data?.statusMessage || (e as any)?.message || e;
       error.value = eStr;
       status.value = 'todo';
       activeBuildStep.value = undefined;

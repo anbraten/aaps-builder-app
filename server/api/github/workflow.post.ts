@@ -1,3 +1,5 @@
+import { RequestError } from '@octokit/request-error';
+
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
   const octokit = useGithub(event);
@@ -31,7 +33,7 @@ export default defineEventHandler(async (event) => {
     if (!workflowExists) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Workflow not found or actions disabled',
+        statusMessage: 'GitHub Actions disabled',
       });
     }
 
@@ -102,6 +104,10 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, workflowRunId: inProgressRuns[0].id };
   } catch (error) {
+    // check-fork already made sure the build.yml exists, so a 404 here means actions are not enabled on the fork yet
+    if (error instanceof RequestError && error.status === 404) {
+      throw createError({ statusCode: 404, statusMessage: 'GitHub Actions disabled' });
+    }
     handleGithubError(event, error, 'Failed to trigger workflow');
   }
 });

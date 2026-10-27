@@ -36,6 +36,10 @@ export default defineNitroPlugin((nitroApp) => {
       if (original?.statusCode === 404 || message.startsWith('Page not found:')) {
         return null;
       }
+      // node prints warnings like ExperimentalWarning via console.error, which captureConsole picks up
+      if ((sentryEvent.message ?? message).includes('ExperimentalWarning:')) {
+        return null;
+      }
       return sentryEvent;
     },
   });
