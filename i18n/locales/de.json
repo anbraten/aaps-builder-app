@@ -108,6 +108,7 @@
   "no_running_workflow_found": "Seltsam, wir haben den Workflow gestartet, aber er scheint weder in der Warteschlange zu sein noch zu laufen. Bitte prüfe {0}, ob GitHub Actions für deinen Fork aktiviert sind.",
   "no_running_workflow_found_retry": "Falls du sie bereits aktiviert hast, versuche es bitte erneut oder frage eine erfahrene Person um Hilfe.",
   "workflow_execution_failed": "Der Workflow ist fehlgeschlagen. Bitte prüfe die Logs auf GitHub für mehr Details oder frage eine erfahrene Person um Hilfe.",
+  "view_logs": "Logs auf GitHub ansehen",
   "reload_version": "Version laden",
   "version_not_found": "Für diesen Branch, Tag oder Commit wurde keine Version gefunden."
 }

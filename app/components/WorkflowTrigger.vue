@@ -163,6 +163,8 @@
       </template>
       <template v-else-if="error?.includes('Workflow execution failed')">
         <p>{{ $t('workflow_execution_failed') }}</p>
+        <p class="text-sm">{{ error }}</p>
+        <a v-if="logsUrl" :href="logsUrl" target="_blank" class="font-semibold underline">{{ $t('view_logs') }}</a>
       </template>
       <template v-else>
         <pre
@@ -309,6 +311,7 @@ async function triggerWorkflow() {
   });
 }
 
+const logsUrl = ref<string>();
 const checkBuildTimeoutId = ref<number>();
 async function checkBuildStatus() {
   await new Promise<void>((resolve, reject) => {
@@ -333,7 +336,8 @@ async function checkBuildStatus() {
 
       if (response.status === 'failed') {
         clearInterval(checkBuildTimeoutId.value);
-        reject(new Error('Workflow execution failed. Logs: ')); // TODO: add link to logs
+        logsUrl.value = response.logsUrl;
+        reject(new Error(`Workflow execution failed: ${response.failedStep ?? response.run.conclusion}`));
         return;
       }
     }, 1000 * 10);
@@ -353,6 +357,7 @@ function track(event: string, data: any) {
 
 async function startBuild() {
   error.value = undefined;
+  logsUrl.value = undefined;
   activeBuildStep.value = undefined;
   status.value = 'building';
 

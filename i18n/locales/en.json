@@ -108,6 +108,7 @@
   "no_running_workflow_found": "Strange, we have triggered the workflow, but it seems not to be queued or running. Please check if you have enabled GitHub Actions for your fork {0}.",
   "no_running_workflow_found_retry": "If you have already enabled them, please try again or ask an expert for help.",
   "workflow_execution_failed": "The workflow execution failed. Please check the logs on GitHub for more details or ask an expert.",
+  "view_logs": "View logs on GitHub",
   "reload_version": "Load version",
   "version_not_found": "Version not found for this branch, tag or commit."
 }
